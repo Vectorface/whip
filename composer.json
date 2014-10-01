@@ -12,6 +12,12 @@
         }
     ],
     "autoload": {
-        "psr-0": {"vectorface\\IpLookup": "src/"}
+        "psr-0": {
+            "VectorFace\\IpLookup": "./src",
+            "VectorFace\\IpLookupTests:" "./tests"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.2.*"
     }
 }
