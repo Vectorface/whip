@@ -1,0 +1,17 @@
+{
+    "name": "vectorface/iplookup",
+    "description": "A PHP class for retrieving accurate IP address information for the client.",
+    "version": "0.1.0",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Daniel Bruce",
+            "email": "dbruce@vectorface.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-0": {"vectorface\\IpLookup": "src/"}
+    }
+}
