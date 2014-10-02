@@ -27,6 +27,11 @@ class IpLookup
     /** Indicates custom listed headers will be used. */
     const CUSTOM_HEADERS     = 128;
 
+    /** The whitelist key for IPv4 addresses */
+    const IPV4 = 'ipv4';
+    /** The whitelist key for IPv6 addresses */
+    const IPV6 = 'ipv6';
+
     /** Quick lookup table to map hex digits to 4-character binary representation. */
     private static $hexMaps = [
         '0' => '0000',
@@ -148,9 +153,12 @@ class IpLookup
     private function isIpWhitelisted($whitelist, $ipAddress)
     {
         if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            if (empty($whitelist[self::IPV4])) {
+                return false;
+            }
             $ipLong = ip2long($ipAddress);
             // handle IPv4 range notations
-            foreach ($whitelist as $range) {
+            foreach ($whitelist[self::IPV4] as $range) {
                 list($lower, $upper) = $this->getIpv4Range($range);
                 if ($lower <= $ipLong && $upper >= $ipLong) {
                     return true;
@@ -158,8 +166,11 @@ class IpLookup
             }
             return false;
         } else {
+            if (empty($whitelist[self::IPV6])) {
+                return false;
+            }
             // handle IPv6 CIDR notation only
-            foreach ($whitelist as $range) {
+            foreach ($whitelist[self::IPV6] as $range) {
                 list($network, $mask) = explode('/', $range);
                 $binaryNetwork = $this->convertToBinaryString($network);
                 $binaryAddress = $this->convertToBinaryString($ipAddress);
