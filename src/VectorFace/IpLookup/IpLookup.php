@@ -24,9 +24,32 @@ class IpLookup
     const CLOUDFLARE_HEADERS = 4;
     /** Indicates any Incapsula specific headers will be used. */
     const INCAPSULA_HEADERS  = 8;
+    /** Indicates custom listed headers will be used. */
+    const CUSTOM_HEADERS     = 128;
+
+    /** Quick lookup table to map hex digits to 4-character binary representation. */
+    private static $hexMaps = [
+        '0' => '0000',
+        '1' => '0001',
+        '2' => '0010',
+        '3' => '0011',
+        '4' => '0100',
+        '5' => '0101',
+        '6' => '0110',
+        '7' => '0111',
+        '8' => '1000',
+        '9' => '1001',
+        'A' => '1010',
+        'B' => '1011',
+        'C' => '1100',
+        'D' => '1101',
+        'E' => '1110',
+        'F' => '1111'
+    ];
 
     /** The array of mapped header strings. */
     private static $headers = [
+        self::CUSTOM_HEADERS => [],
         self::INCAPSULA_HEADERS => [
             'HTTP_INCAP_CLIENT_IP'
         ],
@@ -58,6 +81,17 @@ class IpLookup
     {
         $this->enabled = (int)$enabled;
         $this->whitelist = is_array($whitelists) ? $whitelists : [];
+    }
+
+    /**
+     * Adds a custom header to the list.
+     * @param string $header The custom header to add.
+     * @return IpLookup Returns $this.
+     */
+    public function addCustomHeader($header)
+    {
+        self::$headers[self::CUSTOM_HEADERS][] = $header;
+        return $this;
     }
 
     /**
@@ -113,14 +147,43 @@ class IpLookup
      */
     private function isIpWhitelisted($whitelist, $ipAddress)
     {
-        $ipLong = ip2long($ipAddress);
-        foreach ($whitelist as $range) {
-            list($lower, $upper) = $this->getIpv4Range($range);
-            if ($lower <= $ipLong && $upper >= $ipLong) {
-                return true;
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $ipLong = ip2long($ipAddress);
+            // handle IPv4 range notations
+            foreach ($whitelist as $range) {
+                list($lower, $upper) = $this->getIpv4Range($range);
+                if ($lower <= $ipLong && $upper >= $ipLong) {
+                    return true;
+                }
             }
+            return false;
+        } else {
+            // handle IPv6 CIDR notation only
+            foreach ($whitelist as $range) {
+                list($network, $mask) = explode('/', $range);
+                $binaryNetwork = $this->convertToBinaryString($network);
+                $binaryAddress = $this->convertToBinaryString($ipAddress);
+                if(substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                    return true;
+                }
+            }
+            return false;
         }
-        return false;
+    }
+
+    /**
+     * Converts an IPv6 address to a binary string.
+     * @param string $address The IPv6 address in standard notation.
+     * @return string Returns the address as a string of bits.
+     */
+    private function convertToBinaryString($address)
+    {
+        $binaryString = '';
+        $hexString = strtoupper(bin2hex(inet_pton($address)));
+        foreach (str_split($hexString) as $char) {
+            $binaryString .= self::$hexMaps[$char];
+        }
+        return $binaryString;
     }
 
     /**

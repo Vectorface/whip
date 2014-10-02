@@ -166,11 +166,77 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             IpLookup::PROXY_METHODS,
             [
                 IpLookup::PROXY_METHODS => [
-                    '127.0.0.1',
+                    '127.0.0.1/24',
                     '::1'
                 ]
             ]
         );
         $this->assertTrue(false === $lookup->getIpAddress());
+    }
+
+    /**
+     * Tests that we reject a proxy listed IPv6 address that does not fall within
+     * the allowed subnet.
+     */
+    public function testIPv6AddressRejectedDueToWhitelist()
+    {
+        $_SERVER = [
+            'REMOTE_ADDR' => '::1',
+            'HTTP_X_FORWARDED_FOR' => '::1'
+        ];
+        $lookup = new IpLookup(
+            IpLookup::PROXY_METHODS,
+            [
+                IpLookup::PROXY_METHODS => [
+                    '2400:cb00::/32'
+                ]
+            ]
+        );
+        $this->assertTrue(false === $lookup->getIpAddress());
+    }
+
+    /**
+     * Tests that we reject a proxy listed IPv6 address that does not fall within
+     * the allowed subnet.
+     */
+    public function testIPv6AddressFoundInWhitelist()
+    {
+        $_SERVER = [
+            'REMOTE_ADDR' => '::1',
+            'HTTP_X_FORWARDED_FOR' => '::1'
+        ];
+        $lookup = new IpLookup(
+            IpLookup::PROXY_METHODS,
+            [
+                IpLookup::PROXY_METHODS => [
+                    '::1/32'
+                ]
+            ]
+        );
+        $this->assertEquals('::1', $lookup->getIpAddress());
+    }
+
+    /**
+     * Test a custom header with a whitelisted IP.
+     */
+    public function testCustomHeader()
+    {
+        $_SERVER = [
+            'REMOTE_ADDR' => '127.0.0.1',
+            'X_REAL_IP' => '32.32.32.32'
+        ];
+        $lookup = new IpLookup(
+            IpLookup::CUSTOM_HEADERS | IpLookup::REMOTE_ADDR,
+            [
+                IpLookup::CUSTOM_HEADERS => [
+                    '127.0.0.1',
+                    '::1'
+                ]
+            ]
+        );
+        $this->assertEquals(
+            '32.32.32.32',
+            $lookup->addCustomHeader('X_REAL_IP')->getIpAddress()
+        );
     }
 }
