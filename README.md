@@ -1,6 +1,6 @@
 # Whip [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
 
-Whip (Whip) is a lightweight class for returning a client's IP address in PHP.
+Whip (stands for Which Ip) is a lightweight class for returning a client's IP address in PHP.
 
 ## The Problem
 
