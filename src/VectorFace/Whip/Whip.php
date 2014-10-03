@@ -132,22 +132,30 @@ class Whip
     {
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
-            if (!($key & $this->enabled)) {
+            if ( ! ($key & $this->enabled) // Skip this header if not enabled
+                    // skip this header if the IP address is in the whilelist
+                    || $localAddress && isset($this->whitelist[$key]) 
+                    && is_array($this->whitelist[$key]) 
+                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
                 continue;
-            } elseif ($localAddress && isset($this->whitelist[$key]) && is_array($this->whitelist[$key])) {
-                if (!$this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
-                    continue;
-                }
             }
-            foreach ($headers as $header) {
-                if (!empty($_SERVER[$header])) {
-                    $list = explode(',', $_SERVER[$header]);
-                    return trim(end($list));
-                }
-            }
+            return $this->addressFromHeaders($headers);
         }
         return false;
     }
+
+    public function addressFromHeaders($headers)
+    {
+        foreach ($headers as $header) {
+            if (empty($_SERVER[$header])) {
+                continue;
+            }
+            $list = explode(',', $_SERVER[$header]);
+            return trim(end($list));
+        }
+        return false;
+    }
+    
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
