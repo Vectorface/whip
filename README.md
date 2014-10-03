@@ -45,38 +45,11 @@ This method looks great, but there is the problem that the custom HTTP header
 can easily be spoofed if your sites accept traffic not from CloudFlare. WhichIp
 also allows you to specify a whitelist of IP ranges to accept custom headers.
 
-For example, here is how we could use CloudFlare with a whitelist of IP ranges
-and fall back to REMOTE_ADDR if the custom header was not found.
+## Using the CloudFlare IP Range Whitelist
 
-    $whip = new WhichIp(
-        WhichIp::CLOUD_FLARE_HEADERS | WhichIp::REMOTE_ADDR,
-        [
-            WhichIp::CLOUD_FLARE_HEADERS => [
-                WhichIp::IPV4 => [
-                    '199.27.128.0/21',
-                    '173.245.48.0/20',
-                    '103.21.244.0/22',
-                    '103.22.200.0/22',
-                    '103.31.4.0/22',
-                    '141.101.64.0/18',
-                    '108.162.192.0/18',
-                    '190.93.240.0/20',
-                    '188.114.96.0/20',
-                    '197.234.240.0/22',
-                    '198.41.128.0/17',
-                    '162.158.0.0/15',
-                    '104.16.0.0/12'
-                ]
-            ]
-        ]
-    );
-    $clientAddress = $whip->getValidIpAddress();
-
-The IP address in the CloudFlare header will only be returned if the traffic
-actually originated from CloudFlare. Please note an up to date list of IPs
-can be found at https://www.cloudflare.com/ips-v4.
-
-And the same solution if you offer IPv6:
+Whip can accept a whitelist of IP ranges to use when checking the CloudFlare
+custom header and fall back to `$_SERVER['REMOTE_ADDR']` if the custom header
+was not found or if the source IP address does match any in the whitelist.
 
     $whip = new WhichIp(
         WhichIp::CLOUD_FLARE_HEADERS | WhichIp::REMOTE_ADDR,
@@ -108,3 +81,65 @@ And the same solution if you offer IPv6:
         ]
     );
     $clientAddress = $whip->getValidIpAddress();
+
+Please be sure to use the actual list of IP ranges from CloudFlare for
+[IPv4](https://www.cloudflare.com/ips-v4) and
+[IPv6](https://www.cloudflare.com/ips-v6).
+
+## List of Methods
+
+The individual methods are stored as integer constants on the `WhichIp` class.
+To combine methods, use the bitwise OR operator `|`. The current methods are:
+
+- `WhichIp::REMOTE_ADDR` - Uses the standard `$_SERVER['REMOTE_ADDR']`
+  superglobal.
+- `WhichIp::PROXY_METHODS` - Uses any of the following values (if set):
+    - `$_SERVER['HTTP_CLIENT_IP']`
+    - `$_SERVER['HTTP_X_FORWARDED_FOR']`
+    - `$_SERVER['HTTP_X_FORWARDED']`
+    - `$_SERVER['HTTP_X_CLUSTER_CLIENT_IP']`
+    - `$_SERVER['HTTP_FORWARDED_FOR']`
+    - `$_SERVER['HTTP_FORWARDED']`
+- `WhichIp::CLOUDFLARE_HEADERS` - Uses the CloudFlare provided HTTP header
+  "CF-Connecting-IP".
+- `WhichIp::INCAPSULA_HEADERS` - Use the Incapsula provided HTTP header
+  "Incap-Client-IP".
+- `WhichIp::CUSTOM_HEADERS` - Uses a custom list of HTTP headers passed into
+  `WhichIp::addCustomHeader`.
+
+## Using a Custom Header
+
+Whip can also allow you to specify a custom header to use. For example, you may
+configure your own proxy to send a unique obfuscated header internally that
+would be hard to spoof. In this example, we assume Varnish is run locally and
+we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
+`$_SERVER['REMOTE_ADDR']` if the custom header doesn't work).
+
+    $whip = new WhichIp(
+        WhichIp::CUSTOM_HEADERS | WhichIp::REMOTE_ADDR,
+        [
+            WhichIp::CUSTOM_HEADERS => [
+                WhichIp::IPV4 => [
+                    '127.0.0.1'
+                ],
+                WhichIp::IPV6 => [
+                    '::1'
+                ]
+            ]
+        ]
+    );
+    $whip->addCustomHeader('X-SECRET-REAL-IP');
+    $clientAddress = $whip->getValidIpAddress();
+
+## Valid IP Ranges
+
+For IPv4, Whip accepts three types of IP ranges:
+
+- Asterisk wildcard (192.168.*)
+- Dashed range (192.168.0.0-192.168.255.255)
+- CIDR bitmask notation (192.168.0.0/16)
+
+For IPv6, Whip only accepts the CIDR bitmask notation (fc00::/7).
+
+Furthermore, you can specify a list of exact IP addresses instead of a list of
+ranges.
