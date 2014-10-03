@@ -8,6 +8,11 @@
             "name": "Daniel Bruce",
             "email": "dbruce@vectorface.com",
             "role": "Developer"
+        },
+        {
+            "name": "Cory Darby",
+            "email": "ckdarby@vectorface.com",
+            "role": "Developer"
         }
     ],
     "autoload": {
