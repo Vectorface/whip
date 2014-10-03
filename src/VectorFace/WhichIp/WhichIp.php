@@ -31,6 +31,7 @@ namespace VectorFace\WhichIp;
  * superglobal to determine the client's IP address.
  * @copyright VectorFace, Inc 2014
  * @author Daniel Bruce <dbruce@vectorface.com>
+ * @author Cory Darby <ckdarby@vectorface.com>
  */
 class WhichIp
 {
