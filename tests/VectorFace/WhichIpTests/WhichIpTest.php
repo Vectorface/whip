@@ -1,17 +1,39 @@
 <?php
+/*
+The MIT License (MIT)
 
-namespace VectorFace\IpLookupTests;
+Copyright (c) 2014 VectorFace, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+namespace VectorFace\WhichIpTests;
 
 use PHPUnit_Framework_TestCase;
-use VectorFace\IpLookup\IpLookup;
+use VectorFace\WhichIp\WhichIp;
 
 /**
- * Test class for testing IpLookup.
+ * Test class for testing WhichIp.
  * @backupGlobals enabled
  * @copyright VectorFace, Inc 2014
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-class IpLookupTest extends PHPUnit_Framework_TestCase
+class WhichIpTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Tests that we get back 127.0.0.1 when there is no superglobal information
@@ -20,7 +42,7 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
     public function testEmptySuperglobal()
     {
         $_SERVER = [];
-        $lookup = new IpLookup();
+        $lookup = new WhichIp();
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -31,7 +53,7 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
     public function testNoAddresFoundDueToBitmask()
     {
         $_SERVER = ['REMOTE_ADDR' => '127.0.0.1'];
-        $lookup = new IpLookup(IpLookup::PROXY_METHODS);
+        $lookup = new WhichIp(WhichIp::PROXY_METHODS);
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -41,7 +63,7 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
     public function testRemoteAddrMethod()
     {
         $_SERVER = ['REMOTE_ADDR' => '24.24.24.24'];
-        $lookup = new IpLookup(IpLookup::REMOTE_ADDR);
+        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
         $this->assertEquals('24.24.24.24', $lookup->getValidIpAddress());
     }
 
@@ -51,7 +73,7 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
     public function testInvalidIPv4Address()
     {
         $_SERVER = ['REMOTE_ADDR' => '127.0.0.01'];
-        $lookup = new IpLookup(IpLookup::REMOTE_ADDR);
+        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
         $this->assertTrue(false === $lookup->getValidIpAddress());
     }
 
@@ -61,7 +83,7 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
     public function testValidIPv6Address()
     {
         $_SERVER = ['REMOTE_ADDR' => '::1'];
-        $lookup = new IpLookup(IpLookup::REMOTE_ADDR);
+        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
         $this->assertEquals('::1', $lookup->getValidIpAddress());
     }
 
@@ -74,14 +96,14 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.1'
                     ],
-                    IpLookup::IPV6 => [
+                    WhichIp::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -100,14 +122,14 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.0-127.0.255.255',
                     ],
-                    IpLookup::IPV6 => [
+                    WhichIp::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -126,14 +148,14 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.*'
                     ],
-                    IpLookup::IPV6 => [
+                    WhichIp::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -152,14 +174,14 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.0/24'
                     ],
-                    IpLookup::IPV6 => [
+                    WhichIp::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -178,14 +200,14 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '24.24.24.24',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.1/24'
                     ],
-                    IpLookup::IPV6 => [
+                    WhichIp::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -204,11 +226,11 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV6 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV6 => [
                         '2400:cb00::/32'
                     ]
                 ]
@@ -227,11 +249,11 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV6 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV6 => [
                         '::1/32'
                     ]
                 ]
@@ -250,11 +272,11 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '24.24.24.24'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV6 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV6 => [
                         '::1/32'
                     ]
                 ]
@@ -273,11 +295,11 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new IpLookup(
-            IpLookup::PROXY_METHODS,
+        $lookup = new WhichIp(
+            WhichIp::PROXY_METHODS,
             [
-                IpLookup::PROXY_METHODS => [
-                    IpLookup::IPV4 => [
+                WhichIp::PROXY_METHODS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.0/24'
                     ]
                 ]
@@ -295,11 +317,11 @@ class IpLookupTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'X_REAL_IP' => '32.32.32.32'
         ];
-        $lookup = new IpLookup(
-            IpLookup::CUSTOM_HEADERS | IpLookup::REMOTE_ADDR,
+        $lookup = new WhichIp(
+            WhichIp::CUSTOM_HEADERS | WhichIp::REMOTE_ADDR,
             [
-                IpLookup::CUSTOM_HEADERS => [
-                    IpLookup::IPV4 => [
+                WhichIp::CUSTOM_HEADERS => [
+                    WhichIp::IPV4 => [
                         '127.0.0.1',
                         '::1'
                     ]

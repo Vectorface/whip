@@ -14,7 +14,7 @@
     "autoload": {
         "psr-0": {
             "VectorFace\\WhichIp": "./src",
-            "VectorFace\\WhichIpTests:" "./tests"
+            "VectorFace\\WhichIpTests": "./tests"
         }
     },
     "require-dev": {
