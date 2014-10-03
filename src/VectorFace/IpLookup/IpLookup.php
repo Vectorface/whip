@@ -128,7 +128,7 @@ class IpLookup
     }
 
     /**
-     * Returns the valid IP address or falseif no valid IP address was found.
+     * Returns the valid IP address or false if no valid IP address was found.
      * @return mixed Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
