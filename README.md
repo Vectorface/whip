@@ -64,9 +64,9 @@ custom header was not found or if the source IP address does match any in the
 whitelist.
 
     $whip = new WhichIp(
-        WhichIp::CLOUD_FLARE_HEADERS | WhichIp::REMOTE_ADDR,
+        WhichIp::CLOUDFLARE_HEADERS | WhichIp::REMOTE_ADDR,
         [
-            WhichIp::CLOUD_FLARE_HEADERS => [
+            WhichIp::CLOUDFLARE_HEADERS => [
                 WhichIp::IPV4 => [
                     '199.27.128.0/21',
                     '173.245.48.0/20',
