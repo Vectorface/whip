@@ -136,11 +136,11 @@ class Whip
     {
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
-            if ( ! ($key & $this->enabled) // Skip this header if not enabled
+            if (!($key & $this->enabled) // Skip this header if not enabled
                     // skip this header if the IP address is in the whilelist
-                    || $localAddress && isset($this->whitelist[$key]) 
-                    && is_array($this->whitelist[$key]) 
-                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
+                    || ($localAddress && isset($this->whitelist[$key])
+                    && is_array($this->whitelist[$key])
+                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
             return $this->addressFromHeaders($headers);
@@ -272,5 +272,4 @@ class Whip
             return array($longAddress, $longAddress);
         }
     }
-
 }
