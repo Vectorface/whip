@@ -53,7 +53,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testNoAddresFoundDueToBitmask()
     {
         $_SERVER = ['REMOTE_ADDR' => '127.0.0.1'];
-        $lookup = new WhichIp(WhichIp::PROXY_METHODS);
+        $lookup = new WhichIp(WhichIp::PROXY_HEADERS);
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -98,9 +98,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '192.168.1.1,32.32.32.32'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.0.1'
                     ],
@@ -124,9 +124,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.0.0-127.0.255.255',
                     ],
@@ -150,9 +150,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.*'
                     ],
@@ -176,9 +176,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.0.0/24'
                     ],
@@ -202,9 +202,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.0.1/24'
                     ],
@@ -228,9 +228,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV6 => [
                         '2400:cb00::/32'
                     ]
@@ -251,9 +251,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV6 => [
                         '::1/32'
                     ]
@@ -274,9 +274,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '24.24.24.24'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV6 => [
                         '::1/32'
                     ]
@@ -297,9 +297,9 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
         $lookup = new WhichIp(
-            WhichIp::PROXY_METHODS,
+            WhichIp::PROXY_HEADERS,
             [
-                WhichIp::PROXY_METHODS => [
+                WhichIp::PROXY_HEADERS => [
                     WhichIp::IPV4 => [
                         '127.0.0.0/24'
                     ]

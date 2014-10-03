@@ -40,7 +40,7 @@ class WhichIp
     /** Indicates the REMOTE_ADDR method will be used. */
     const REMOTE_ADDR        = 1;
     /** Indicates a set of possible proxy headers will be used. */
-    const PROXY_METHODS      = 2;
+    const PROXY_HEADERS      = 2;
     /** Indicates any CloudFlare specific headers will be used. */
     const CLOUDFLARE_HEADERS = 4;
     /** Indicates any Incapsula specific headers will be used. */
@@ -82,7 +82,7 @@ class WhichIp
         self::CLOUDFLARE_HEADERS => [
             'HTTP_CF_CONNECTING_IP'
         ],
-        self::PROXY_METHODS => [
+        self::PROXY_HEADERS => [
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
             'HTTP_X_FORWARDED',

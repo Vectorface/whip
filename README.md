@@ -26,30 +26,42 @@ Add the required `use` statement to your class
 
     use VectorFace\WhichIp\WhichIp;
 
-To fetch an IP address using every known method, you can simply do
+To fetch an IP address using every implemented method, you can simply do
 
     $whip = new WhichIp();
     $clientAddress = $whip->getValidIpAddress();
 
-The class will attempt every known method to retrieve the client's IP address
-starting with very specific use cases and falling back to more general use cases.
+The class will attempt every method to retrieve the client's IP address
+starting with very specific use cases and falling back to more general use
+cases.
 
-To fetch an IP address using a very specific method, you can specify a bitmask
-of enabled methods to the constructor. Here is an example of looking up the IP
-using CloudFlare's custom HTTP header, and falling back to REMOTE_ADDR otherwise.
+Note, that the method `WhichIp::getValidIpAddress` will return `false` if no
+valid IP address could be determined, so it is important to check for errors.
+
+    $whip = new WhichIp();
+    if (false === ($clientAddress = $whip->getValidIpAddress())) {
+        // handle the error
+    }
+
+To fetch an IP address using a specific method, you can pass a bitmask of
+enabled methods to the constructor. Here is an example of looking up the IP
+address using CloudFlare's custom HTTP header, and falling back to
+`$_SERVER['REMOTE_ADDR']` otherwise.
 
     $whip = new WhichIp(WhichIp::CLOUDFLARE_HEADERS | WhichIp::REMOTE_ADDR);
     $clientAddress = $whip->getValidIpAddress();
 
-This method looks great, but there is the problem that the custom HTTP header
-can easily be spoofed if your sites accept traffic not from CloudFlare. WhichIp
-also allows you to specify a whitelist of IP ranges to accept custom headers.
+This method works, but there is the problem that the custom HTTP header can
+easily be spoofed if your sites accept traffic not from CloudFlare. To prevent
+this, Whip allows you to specify a whitelist of IP addresses (or address ranges)
+that you accept per method.
 
 ## Using the CloudFlare IP Range Whitelist
 
-Whip can accept a whitelist of IP ranges to use when checking the CloudFlare
-custom header and fall back to `$_SERVER['REMOTE_ADDR']` if the custom header
-was not found or if the source IP address does match any in the whitelist.
+As a common example, Whip can accept a whitelist of IP ranges for CloudFlare
+when using their custom header and fall back to `$_SERVER['REMOTE_ADDR']` if the
+custom header was not found or if the source IP address does match any in the
+whitelist.
 
     $whip = new WhichIp(
         WhichIp::CLOUD_FLARE_HEADERS | WhichIp::REMOTE_ADDR,
@@ -91,9 +103,8 @@ Please be sure to use the actual list of IP ranges from CloudFlare for
 The individual methods are stored as integer constants on the `WhichIp` class.
 To combine methods, use the bitwise OR operator `|`. The current methods are:
 
-- `WhichIp::REMOTE_ADDR` - Uses the standard `$_SERVER['REMOTE_ADDR']`
-  superglobal.
-- `WhichIp::PROXY_METHODS` - Uses any of the following values (if set):
+- `WhichIp::REMOTE_ADDR` - Uses the standard `$_SERVER['REMOTE_ADDR']`.
+- `WhichIp::PROXY_HEADERS` - Uses any of the following values:
     - `$_SERVER['HTTP_CLIENT_IP']`
     - `$_SERVER['HTTP_X_FORWARDED_FOR']`
     - `$_SERVER['HTTP_X_FORWARDED']`
