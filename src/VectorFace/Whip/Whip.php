@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace VectorFace\WhichIp;
+namespace VectorFace\Whip;
 
 /**
  * A class for accurately looking up a client's IP address.
@@ -33,7 +33,7 @@ namespace VectorFace\WhichIp;
  * @author Daniel Bruce <dbruce@vectorface.com>
  * @author Cory Darby <ckdarby@vectorface.com>
  */
-class WhichIp
+class Whip
 {
     /** Indicates all header methods will be used. */
     const ALL_METHODS        = 255;
@@ -112,7 +112,7 @@ class WhichIp
     /**
      * Adds a custom header to the list.
      * @param string $header The custom header to add.
-     * @return WhichIp Returns $this.
+     * @return Whip Returns $this.
      */
     public function addCustomHeader($header)
     {

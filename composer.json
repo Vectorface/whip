@@ -20,8 +20,8 @@
     ],
     "autoload": {
         "psr-0": {
-            "VectorFace\\WhichIp": "./src",
-            "VectorFace\\WhichIpTests": "./tests"
+            "VectorFace\\Whip": "./src",
+            "VectorFace\\WhipTests": "./tests"
         }
     },
     "homepage": "https://github.com/Vectorface/whip",

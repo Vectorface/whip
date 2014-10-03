@@ -22,18 +22,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-namespace VectorFace\WhichIpTests;
+namespace VectorFace\WhipTests;
 
 use PHPUnit_Framework_TestCase;
-use VectorFace\WhichIp\WhichIp;
+use VectorFace\Whip\Whip;
 
 /**
- * Test class for testing WhichIp.
+ * Test class for testing Whip.
  * @backupGlobals enabled
  * @copyright VectorFace, Inc 2014
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-class WhichIpTest extends PHPUnit_Framework_TestCase
+class WhipTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Tests that we get back 127.0.0.1 when there is no superglobal information
@@ -42,7 +42,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testEmptySuperglobal()
     {
         $_SERVER = [];
-        $lookup = new WhichIp();
+        $lookup = new Whip();
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -53,7 +53,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testNoAddresFoundDueToBitmask()
     {
         $_SERVER = ['REMOTE_ADDR' => '127.0.0.1'];
-        $lookup = new WhichIp(WhichIp::PROXY_HEADERS);
+        $lookup = new Whip(Whip::PROXY_HEADERS);
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -63,7 +63,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testRemoteAddrMethod()
     {
         $_SERVER = ['REMOTE_ADDR' => '24.24.24.24'];
-        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
+        $lookup = new Whip(Whip::REMOTE_ADDR);
         $this->assertEquals('24.24.24.24', $lookup->getValidIpAddress());
     }
 
@@ -73,7 +73,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testInvalidIPv4Address()
     {
         $_SERVER = ['REMOTE_ADDR' => '127.0.0.01'];
-        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
+        $lookup = new Whip(Whip::REMOTE_ADDR);
         $this->assertTrue(false === $lookup->getValidIpAddress());
     }
 
@@ -83,7 +83,7 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     public function testValidIPv6Address()
     {
         $_SERVER = ['REMOTE_ADDR' => '::1'];
-        $lookup = new WhichIp(WhichIp::REMOTE_ADDR);
+        $lookup = new Whip(Whip::REMOTE_ADDR);
         $this->assertEquals('::1', $lookup->getValidIpAddress());
     }
 
@@ -97,14 +97,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '192.168.1.1,32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.1'
                     ],
-                    WhichIp::IPV6 => [
+                    Whip::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -123,14 +123,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.0-127.0.255.255',
                     ],
-                    WhichIp::IPV6 => [
+                    Whip::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -149,14 +149,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.*'
                     ],
-                    WhichIp::IPV6 => [
+                    Whip::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -175,14 +175,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.0/24'
                     ],
-                    WhichIp::IPV6 => [
+                    Whip::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -201,14 +201,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '24.24.24.24',
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.1/24'
                     ],
-                    WhichIp::IPV6 => [
+                    Whip::IPV6 => [
                         '::1'
                     ]
                 ]
@@ -227,11 +227,11 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV6 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV6 => [
                         '2400:cb00::/32'
                     ]
                 ]
@@ -250,11 +250,11 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV6 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV6 => [
                         '::1/32'
                     ]
                 ]
@@ -273,11 +273,11 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'HTTP_X_FORWARDED_FOR' => '24.24.24.24'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV6 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV6 => [
                         '::1/32'
                     ]
                 ]
@@ -296,11 +296,11 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '::1',
             'HTTP_X_FORWARDED_FOR' => '::1'
         ];
-        $lookup = new WhichIp(
-            WhichIp::PROXY_HEADERS,
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
             [
-                WhichIp::PROXY_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.0/24'
                     ]
                 ]
@@ -318,11 +318,11 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'X_REAL_IP' => '32.32.32.32'
         ];
-        $lookup = new WhichIp(
-            WhichIp::CUSTOM_HEADERS | WhichIp::REMOTE_ADDR,
+        $lookup = new Whip(
+            Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
             [
-                WhichIp::CUSTOM_HEADERS => [
-                    WhichIp::IPV4 => [
+                Whip::CUSTOM_HEADERS => [
+                    Whip::IPV4 => [
                         '127.0.0.1',
                         '::1'
                     ]

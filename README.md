@@ -1,6 +1,6 @@
-# WhichIp [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
+# Whip [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
 
-WhichIp (Whip) is a lightweight class for returning a client's IP address in PHP.
+Whip (Whip) is a lightweight class for returning a client's IP address in PHP.
 
 ## The Problem
 
@@ -24,21 +24,21 @@ Simply add Whip to your composer.json `require` field like so:
 
 Add the required `use` statement to your class
 
-    use VectorFace\WhichIp\WhichIp;
+    use VectorFace\Whip\Whip;
 
 To fetch an IP address using every implemented method, you can simply do
 
-    $whip = new WhichIp();
+    $whip = new Whip();
     $clientAddress = $whip->getValidIpAddress();
 
 The class will attempt every method to retrieve the client's IP address
 starting with very specific use cases and falling back to more general use
 cases.
 
-Note, that the method `WhichIp::getValidIpAddress` will return `false` if no
+Note, that the method `Whip::getValidIpAddress` will return `false` if no
 valid IP address could be determined, so it is important to check for errors.
 
-    $whip = new WhichIp();
+    $whip = new Whip();
     if (false === ($clientAddress = $whip->getValidIpAddress())) {
         // handle the error
     }
@@ -48,7 +48,7 @@ enabled methods to the constructor. Here is an example of looking up the IP
 address using CloudFlare's custom HTTP header, and falling back to
 `$_SERVER['REMOTE_ADDR']` otherwise.
 
-    $whip = new WhichIp(WhichIp::CLOUDFLARE_HEADERS | WhichIp::REMOTE_ADDR);
+    $whip = new Whip(Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
     $clientAddress = $whip->getValidIpAddress();
 
 This method works, but there is the problem that the custom HTTP header can
@@ -63,11 +63,11 @@ when using their custom header and fall back to `$_SERVER['REMOTE_ADDR']` if the
 custom header was not found or if the source IP address does match any in the
 whitelist.
 
-    $whip = new WhichIp(
-        WhichIp::CLOUDFLARE_HEADERS | WhichIp::REMOTE_ADDR,
+    $whip = new Whip(
+        Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR,
         [
-            WhichIp::CLOUDFLARE_HEADERS => [
-                WhichIp::IPV4 => [
+            Whip::CLOUDFLARE_HEADERS => [
+                Whip::IPV4 => [
                     '199.27.128.0/21',
                     '173.245.48.0/20',
                     '103.21.244.0/22',
@@ -82,7 +82,7 @@ whitelist.
                     '162.158.0.0/15',
                     '104.16.0.0/12'
                 ],
-                WhichIp::IPV6 => [
+                Whip::IPV6 => [
                     '2400:cb00::/32',
                     '2606:4700::/32',
                     '2803:f800::/32',
@@ -100,23 +100,23 @@ Please be sure to use the actual list of IP ranges from CloudFlare for
 
 ## List of Methods
 
-The individual methods are stored as integer constants on the `WhichIp` class.
+The individual methods are stored as integer constants on the `Whip` class.
 To combine methods, use the bitwise OR operator `|`. The current methods are:
 
-- `WhichIp::REMOTE_ADDR` - Uses the standard `$_SERVER['REMOTE_ADDR']`.
-- `WhichIp::PROXY_HEADERS` - Uses any of the following values:
+- `Whip::REMOTE_ADDR` - Uses the standard `$_SERVER['REMOTE_ADDR']`.
+- `Whip::PROXY_HEADERS` - Uses any of the following values:
     - `$_SERVER['HTTP_CLIENT_IP']`
     - `$_SERVER['HTTP_X_FORWARDED_FOR']`
     - `$_SERVER['HTTP_X_FORWARDED']`
     - `$_SERVER['HTTP_X_CLUSTER_CLIENT_IP']`
     - `$_SERVER['HTTP_FORWARDED_FOR']`
     - `$_SERVER['HTTP_FORWARDED']`
-- `WhichIp::CLOUDFLARE_HEADERS` - Uses the CloudFlare provided HTTP header
+- `Whip::CLOUDFLARE_HEADERS` - Uses the CloudFlare provided HTTP header
   "CF-Connecting-IP".
-- `WhichIp::INCAPSULA_HEADERS` - Use the Incapsula provided HTTP header
+- `Whip::INCAPSULA_HEADERS` - Use the Incapsula provided HTTP header
   "Incap-Client-IP".
-- `WhichIp::CUSTOM_HEADERS` - Uses a custom list of HTTP headers passed into
-  `WhichIp::addCustomHeader`.
+- `Whip::CUSTOM_HEADERS` - Uses a custom list of HTTP headers passed into
+  `Whip::addCustomHeader`.
 
 ## Using a Custom Header
 
@@ -126,14 +126,14 @@ would be hard to spoof. In this example, we assume Varnish is run locally and
 we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
 `$_SERVER['REMOTE_ADDR']` if the custom header doesn't work).
 
-    $whip = new WhichIp(
-        WhichIp::CUSTOM_HEADERS | WhichIp::REMOTE_ADDR,
+    $whip = new Whip(
+        Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
         [
-            WhichIp::CUSTOM_HEADERS => [
-                WhichIp::IPV4 => [
+            Whip::CUSTOM_HEADERS => [
+                Whip::IPV4 => [
                     '127.0.0.1'
                 ],
-                WhichIp::IPV6 => [
+                Whip::IPV6 => [
                     '::1'
                 ]
             ]
