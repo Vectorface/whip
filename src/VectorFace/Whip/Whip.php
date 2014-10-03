@@ -143,19 +143,7 @@ class Whip
                     && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
-            return $this->addressFromHeaders($headers);
-        }
-        return false;
-    }
-
-    public function addressFromHeaders($headers)
-    {
-        foreach ($headers as $header) {
-            if (empty($_SERVER[$header])) {
-                continue;
-            }
-            $list = explode(',', $_SERVER[$header]);
-            return trim(end($list));
+            return $this->extractAddressFromHeaders($headers);
         }
         return false;
     }
@@ -172,6 +160,28 @@ class Whip
             return false;
         }
         return $ipAddress;
+    }
+
+    /**
+     * Finds the first element in $headers that is present in $_SERVER and
+     * returns the IP address mapped to that value.
+     * If the IP address is a list of comma separated values, the last value
+     * in the list will be returned.
+     * If no IP address is found, we return false.
+     * @param array $headers The list of headers to check.
+     * @return mixed Returns the IP address as a string or false if no IP
+     *         IP address was found.
+     */
+    private function extractAddressFromHeaders($headers)
+    {
+        foreach ($headers as $header) {
+            if (empty($_SERVER[$header])) {
+                continue;
+            }
+            $list = explode(',', $_SERVER[$header]);
+            return trim(end($list));
+        }
+        return false;
     }
 
     /**
