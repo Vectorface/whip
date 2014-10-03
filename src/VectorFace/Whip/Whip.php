@@ -106,7 +106,7 @@ class Whip
     public function __construct($enabled = self::ALL_METHODS, $whitelists = array())
     {
         $this->enabled = (int)$enabled;
-        $this->whitelist = is_array($whitelists) ? $whitelists : [];
+        $this->whitelist = is_array($whitelists) ? $whitelists : array();
     }
 
     /**
