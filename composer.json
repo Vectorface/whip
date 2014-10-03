@@ -1,6 +1,9 @@
 {
     "name": "vectorface/whip",
     "description": "A PHP class for retrieving accurate IP address information for the client.",
+    "keywords": [
+        "IP", "Cloudflare", "CDN"
+    ],
     "type": "library",
     "license": "MIT",
     "authors": [
