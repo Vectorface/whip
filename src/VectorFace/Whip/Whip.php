@@ -155,7 +155,6 @@ class Whip
         }
         return false;
     }
-    
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
@@ -182,33 +181,42 @@ class Whip
     private function isIpWhitelisted($whitelist, $ipAddress)
     {
         if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            if (empty($whitelist[self::IPV4])) {
-                return false;
-            }
-            $ipLong = ip2long($ipAddress);
-            // handle IPv4 range notations
-            foreach ($whitelist[self::IPV4] as $range) {
-                list($lower, $upper) = $this->getIpv4Range($range);
-                if ($lower <= $ipLong && $upper >= $ipLong) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            if (empty($whitelist[self::IPV6])) {
-                return false;
-            }
-            // handle IPv6 CIDR notation only
-            foreach ($whitelist[self::IPV6] as $range) {
-                list($network, $mask) = explode('/', $range);
-                $binaryNetwork = $this->convertToBinaryString($network);
-                $binaryAddress = $this->convertToBinaryString($ipAddress);
-                if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
-                    return true;
-                }
-            }
+            return $this->isIp4Whitelisted($whitelist, $ipAddress);
+        }
+        return $this->isIp6Whitelisted($whitelist, $ipAddress);
+    }
+
+    private function isIp4Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV4])) {
             return false;
         }
+        $ipLong = ip2long($ipAddress);
+        // handle IPv4 range notations
+        foreach ($whitelist[self::IPV4] as $range) {
+            list($lower, $upper) = $this->getIpv4Range($range);
+            if ($lower <= $ipLong && $upper >= $ipLong) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private function isIp6Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV6])) {
+            return false;
+        }
+        // handle IPv6 CIDR notation only
+        foreach ($whitelist[self::IPV6] as $range) {
+            list($network, $mask) = explode('/', $range);
+            $binaryNetwork = $this->convertToBinaryString($network);
+            $binaryAddress = $this->convertToBinaryString($ipAddress);
+            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
