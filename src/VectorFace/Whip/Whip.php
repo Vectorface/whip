@@ -1,4 +1,5 @@
 <?php
+
 /*
 The MIT License (MIT)
 
@@ -35,6 +36,7 @@ namespace VectorFace\Whip;
  */
 class Whip
 {
+
     /** Indicates all header methods will be used. */
     const ALL_METHODS        = 255;
     /** Indicates the REMOTE_ADDR method will be used. */
@@ -50,6 +52,7 @@ class Whip
 
     /** The whitelist key for IPv4 addresses */
     const IPV4 = 'ipv4';
+
     /** The whitelist key for IPv6 addresses */
     const IPV6 = 'ipv6';
 
@@ -75,14 +78,14 @@ class Whip
 
     /** The array of mapped header strings. */
     private static $headers = array(
-        self::CUSTOM_HEADERS => array(),
-        self::INCAPSULA_HEADERS => array(
+        self::CUSTOM_HEADERS     => array(),
+        self::INCAPSULA_HEADERS  => array(
             'HTTP_INCAP_CLIENT_IP'
         ),
         self::CLOUDFLARE_HEADERS => array(
             'HTTP_CF_CONNECTING_IP'
         ),
-        self::PROXY_HEADERS => array(
+        self::PROXY_HEADERS      => array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
             'HTTP_X_FORWARDED',
@@ -90,22 +93,23 @@ class Whip
             'HTTP_FORWARDED_FOR',
             'HTTP_FORWARDED'
         ),
-        self::REMOTE_ADDR => array(
+        self::REMOTE_ADDR        => array(
             'REMOTE_ADDR'
         ),
     );
 
     /** the bitmask of enabled methods */
     private $enabled;
+
     /** an array of whitelisted IPs to allow per method */
-    private $whitelists;
+    private $whitelist;
 
     /**
      * Constructor for the class.
      */
     public function __construct($enabled = self::ALL_METHODS, $whitelists = array())
     {
-        $this->enabled = (int)$enabled;
+        $this->enabled   = (int) $enabled;
         $this->whitelist = is_array($whitelists) ? $whitelists : array();
     }
 
@@ -132,19 +136,26 @@ class Whip
     {
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
-            if (!($key & $this->enabled)) {
+            if ( ! ($key & $this->enabled) // Skip this header if not enabled
+                    // skip this header if the IP address is in the whilelist
+                    || $localAddress && isset($this->whitelist[$key]) 
+                    && is_array($this->whitelist[$key]) 
+                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
                 continue;
-            } elseif ($localAddress && isset($this->whitelist[$key]) && is_array($this->whitelist[$key])) {
-                if (!$this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
-                    continue;
-                }
             }
-            foreach ($headers as $header) {
-                if (!empty($_SERVER[$header])) {
-                    $list = explode(',', $_SERVER[$header]);
-                    return trim(end($list));
-                }
+            return $this->addressFromHeaders($headers);
+        }
+        return false;
+    }
+
+    public function addressFromHeaders($headers)
+    {
+        foreach ($headers as $header) {
+            if (empty($_SERVER[$header])) {
+                continue;
             }
+            $list = explode(',', $_SERVER[$header]);
+            return trim(end($list));
         }
         return false;
     }
@@ -174,33 +185,42 @@ class Whip
     private function isIpWhitelisted($whitelist, $ipAddress)
     {
         if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            if (empty($whitelist[self::IPV4])) {
-                return false;
-            }
-            $ipLong = ip2long($ipAddress);
-            // handle IPv4 range notations
-            foreach ($whitelist[self::IPV4] as $range) {
-                list($lower, $upper) = $this->getIpv4Range($range);
-                if ($lower <= $ipLong && $upper >= $ipLong) {
-                    return true;
-                }
-            }
-            return false;
-        } else {
-            if (empty($whitelist[self::IPV6])) {
-                return false;
-            }
-            // handle IPv6 CIDR notation only
-            foreach ($whitelist[self::IPV6] as $range) {
-                list($network, $mask) = explode('/', $range);
-                $binaryNetwork = $this->convertToBinaryString($network);
-                $binaryAddress = $this->convertToBinaryString($ipAddress);
-                if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
-                    return true;
-                }
-            }
+            return $this->isIp4Whitelisted($whitelist, $ipAddress);
+        }
+        return $this->isIp6Whitelisted($whitelist, $ipAddress);
+    }
+
+    private function isIp4Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV4])) {
             return false;
         }
+        $ipLong = ip2long($ipAddress);
+        // handle IPv4 range notations
+        foreach ($whitelist[self::IPV4] as $range) {
+            list($lower, $upper) = $this->getIpv4Range($range);
+            if ($lower <= $ipLong && $upper >= $ipLong) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private function isIp6Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV6])) {
+            return false;
+        }
+        // handle IPv6 CIDR notation only
+        foreach ($whitelist[self::IPV6] as $range) {
+            list($network, $mask) = explode('/', $range);
+            $binaryNetwork = $this->convertToBinaryString($network);
+            $binaryAddress = $this->convertToBinaryString($ipAddress);
+            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -211,7 +231,7 @@ class Whip
     private function convertToBinaryString($address)
     {
         $binaryString = '';
-        $hexString = strtoupper(bin2hex(inet_pton($address)));
+        $hexString    = strtoupper(bin2hex(inet_pton($address)));
         foreach (str_split($hexString) as $char) {
             $binaryString .= self::$hexMaps[$char];
         }
@@ -233,15 +253,15 @@ class Whip
             $longAddress = ip2long($address);
             return array(
                 $longAddress & (((1 << $mask) - 1) << (32 - $mask)),
-                $longAddress | ((1 << (32 - $mask))-1)
+                $longAddress | ((1 << (32 - $mask)) - 1)
             );
         } elseif (strpos($range, '-') !== false) {
             // support for IP ranges like '10.0.0.0-10.0.0.255'
             return array_map('ip2long', explode('-', $range));
         } elseif (($pos = strpos($range, '*')) !== false) {
             // support for IP ranges like '10.0.*'
-            $prefix = substr($range, 0, $pos-1);
-            $parts = explode('.', $prefix);
+            $prefix = substr($range, 0, $pos - 1);
+            $parts  = explode('.', $prefix);
             return array(
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 0)))),
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 255))))
@@ -252,4 +272,5 @@ class Whip
             return array($longAddress, $longAddress);
         }
     }
+
 }
