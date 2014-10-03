@@ -1,4 +1,5 @@
 <?php
+
 /*
 The MIT License (MIT)
 
@@ -35,6 +36,7 @@ namespace VectorFace\Whip;
  */
 class Whip
 {
+
     /** Indicates all header methods will be used. */
     const ALL_METHODS        = 255;
     /** Indicates the REMOTE_ADDR method will be used. */
@@ -50,6 +52,7 @@ class Whip
 
     /** The whitelist key for IPv4 addresses */
     const IPV4 = 'ipv4';
+
     /** The whitelist key for IPv6 addresses */
     const IPV6 = 'ipv6';
 
@@ -75,14 +78,14 @@ class Whip
 
     /** The array of mapped header strings. */
     private static $headers = array(
-        self::CUSTOM_HEADERS => array(),
-        self::INCAPSULA_HEADERS => array(
+        self::CUSTOM_HEADERS     => array(),
+        self::INCAPSULA_HEADERS  => array(
             'HTTP_INCAP_CLIENT_IP'
         ),
         self::CLOUDFLARE_HEADERS => array(
             'HTTP_CF_CONNECTING_IP'
         ),
-        self::PROXY_HEADERS => array(
+        self::PROXY_HEADERS      => array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
             'HTTP_X_FORWARDED',
@@ -90,13 +93,14 @@ class Whip
             'HTTP_FORWARDED_FOR',
             'HTTP_FORWARDED'
         ),
-        self::REMOTE_ADDR => array(
+        self::REMOTE_ADDR        => array(
             'REMOTE_ADDR'
         ),
     );
 
     /** the bitmask of enabled methods */
     private $enabled;
+
     /** an array of whitelisted IPs to allow per method */
     private $whitelist;
 
@@ -227,7 +231,7 @@ class Whip
     private function convertToBinaryString($address)
     {
         $binaryString = '';
-        $hexString = strtoupper(bin2hex(inet_pton($address)));
+        $hexString    = strtoupper(bin2hex(inet_pton($address)));
         foreach (str_split($hexString) as $char) {
             $binaryString .= self::$hexMaps[$char];
         }
@@ -249,15 +253,15 @@ class Whip
             $longAddress = ip2long($address);
             return array(
                 $longAddress & (((1 << $mask) - 1) << (32 - $mask)),
-                $longAddress | ((1 << (32 - $mask))-1)
+                $longAddress | ((1 << (32 - $mask)) - 1)
             );
         } elseif (strpos($range, '-') !== false) {
             // support for IP ranges like '10.0.0.0-10.0.0.255'
             return array_map('ip2long', explode('-', $range));
         } elseif (($pos = strpos($range, '*')) !== false) {
             // support for IP ranges like '10.0.*'
-            $prefix = substr($range, 0, $pos-1);
-            $parts = explode('.', $prefix);
+            $prefix = substr($range, 0, $pos - 1);
+            $parts  = explode('.', $prefix);
             return array(
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 0)))),
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 255))))
@@ -268,4 +272,5 @@ class Whip
             return array($longAddress, $longAddress);
         }
     }
+
 }
