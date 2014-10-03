@@ -1,4 +1,4 @@
-# WhichIp
+# WhichIp [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
 
 WhichIp (Whip) is a lightweight class for returning a client's IP address in PHP.
 
