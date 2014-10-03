@@ -88,13 +88,14 @@ class WhichIpTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests that we accept whitelisted proxy methods when the IP matches.
+     * Tests that we accept whitelisted proxy methods when the IP matches, even
+     * if the IP listed is a comma separated list.
      */
     public function testValidWhitelistedProxyMethod()
     {
         $_SERVER = [
             'REMOTE_ADDR' => '127.0.0.1',
-            'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
+            'HTTP_X_FORWARDED_FOR' => '192.168.1.1,32.32.32.32'
         ];
         $lookup = new WhichIp(
             WhichIp::PROXY_METHODS,
