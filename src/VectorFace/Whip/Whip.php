@@ -98,14 +98,14 @@ class Whip
     /** the bitmask of enabled methods */
     private $enabled;
     /** an array of whitelisted IPs to allow per method */
-    private $whitelists;
+    private $whitelist;
 
     /**
      * Constructor for the class.
      */
     public function __construct($enabled = self::ALL_METHODS, $whitelists = array())
     {
-        $this->enabled = (int)$enabled;
+        $this->enabled   = (int) $enabled;
         $this->whitelist = is_array($whitelists) ? $whitelists : array();
     }
 
