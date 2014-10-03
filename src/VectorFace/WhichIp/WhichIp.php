@@ -140,7 +140,8 @@ class WhichIp
             }
             foreach ($headers as $header) {
                 if (!empty($_SERVER[$header])) {
-                    return trim(end(explode(',', $_SERVER[$header])));
+                    $list = explode(',', $_SERVER[$header]);
+                    return trim(end($list));
                 }
             }
         }
