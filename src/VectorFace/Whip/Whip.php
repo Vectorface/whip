@@ -54,7 +54,7 @@ class Whip
     const IPV6 = 'ipv6';
 
     /** Quick lookup table to map hex digits to 4-character binary representation. */
-    private static $hexMaps = [
+    private static $hexMaps = array(
         '0' => '0000',
         '1' => '0001',
         '2' => '0010',
@@ -71,29 +71,29 @@ class Whip
         'D' => '1101',
         'E' => '1110',
         'F' => '1111'
-    ];
+    );
 
     /** The array of mapped header strings. */
-    private static $headers = [
-        self::CUSTOM_HEADERS => [],
-        self::INCAPSULA_HEADERS => [
+    private static $headers = array(
+        self::CUSTOM_HEADERS => array(),
+        self::INCAPSULA_HEADERS => array(
             'HTTP_INCAP_CLIENT_IP'
-        ],
-        self::CLOUDFLARE_HEADERS => [
+        ),
+        self::CLOUDFLARE_HEADERS => array(
             'HTTP_CF_CONNECTING_IP'
-        ],
-        self::PROXY_HEADERS => [
+        ),
+        self::PROXY_HEADERS => array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
             'HTTP_X_FORWARDED',
             'HTTP_X_CLUSTER_CLIENT_IP',
             'HTTP_FORWARDED_FOR',
             'HTTP_FORWARDED'
-        ],
-        self::REMOTE_ADDR => [
+        ),
+        self::REMOTE_ADDR => array(
             'REMOTE_ADDR'
-        ],
-    ];
+        ),
+    );
 
     /** the bitmask of enabled methods */
     private $enabled;
@@ -134,7 +134,7 @@ class Whip
         foreach (self::$headers as $key => $headers) {
             if (!($key & $this->enabled)) {
                 continue;
-            } else if ($localAddress && isset($this->whitelist[$key]) && is_array($this->whitelist[$key])) {
+            } elseif ($localAddress && isset($this->whitelist[$key]) && is_array($this->whitelist[$key])) {
                 if (!$this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
                     continue;
                 }
@@ -195,7 +195,7 @@ class Whip
                 list($network, $mask) = explode('/', $range);
                 $binaryNetwork = $this->convertToBinaryString($network);
                 $binaryAddress = $this->convertToBinaryString($ipAddress);
-                if(substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
                     return true;
                 }
             }
@@ -231,25 +231,25 @@ class Whip
             // support CIDR notation
             list ($address, $mask) = explode('/', $range);
             $longAddress = ip2long($address);
-            return [
+            return array(
                 $longAddress & (((1 << $mask) - 1) << (32 - $mask)),
                 $longAddress | ((1 << (32 - $mask))-1)
-            ];
-        } else if (strpos($range, '-') !== false) {
+            );
+        } elseif (strpos($range, '-') !== false) {
             // support for IP ranges like '10.0.0.0-10.0.0.255'
             return array_map('ip2long', explode('-', $range));
-        } else if (($pos = strpos($range, '*')) !== false) {
+        } elseif (($pos = strpos($range, '*')) !== false) {
             // support for IP ranges like '10.0.*'
             $prefix = substr($range, 0, $pos-1);
             $parts = explode('.', $prefix);
-            return [
+            return array(
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 0)))),
                 ip2long(implode('.', array_merge($parts, array_fill(0, 4 - count($parts), 255))))
-            ];
+            );
         } else {
             // assume we have a single address
             $longAddress = ip2long($range);
-            return [$longAddress, $longAddress];
+            return array($longAddress, $longAddress);
         }
     }
 }
