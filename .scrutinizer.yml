@@ -7,4 +7,3 @@ tools:
 checks:
     php:
         code_rating: true
-        duplication: true
