@@ -91,7 +91,8 @@ class Whip
             'HTTP_X_FORWARDED',
             'HTTP_X_CLUSTER_CLIENT_IP',
             'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED'
+            'HTTP_FORWARDED',
+            'HTTP_X_REAL_IP',
         ),
         self::REMOTE_ADDR        => array(
             'REMOTE_ADDR'

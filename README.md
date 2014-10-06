@@ -115,6 +115,7 @@ To combine methods, use the bitwise OR operator `|`. The current methods are:
     - `$_SERVER['HTTP_X_CLUSTER_CLIENT_IP']`
     - `$_SERVER['HTTP_FORWARDED_FOR']`
     - `$_SERVER['HTTP_FORWARDED']`
+    - `$_SERVER['HTTP_X_REAL_IP']`
 - `Whip::CLOUDFLARE_HEADERS` - Uses the CloudFlare provided HTTP header
   "CF-Connecting-IP".
 - `Whip::INCAPSULA_HEADERS` - Use the Incapsula provided HTTP header
