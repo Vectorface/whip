@@ -201,6 +201,14 @@ class Whip
         return $this->isIp6Whitelisted($whitelist, $ipAddress);
     }
 
+    /**
+     * Returns whether or not an IPv4 address is in the given whitelist of
+     * IPs and ranges.
+     * @param array $whitelist The array of whitelisted IPs and addresses.
+     * @param string $ipAddress An IPv4 address.
+     * @return bool Returns true if the address is in the whitelist and false
+     *         otherwise.
+     */
     private function isIp4Whitelisted($whitelist, $ipAddress)
     {
         if (empty($whitelist[self::IPV4])) {
@@ -215,38 +223,6 @@ class Whip
             }
         }
         return false;
-    }
-    
-    private function isIp6Whitelisted($whitelist, $ipAddress)
-    {
-        if (empty($whitelist[self::IPV6])) {
-            return false;
-        }
-        // handle IPv6 CIDR notation only
-        foreach ($whitelist[self::IPV6] as $range) {
-            list($network, $mask) = explode('/', $range);
-            $binaryNetwork = $this->convertToBinaryString($network);
-            $binaryAddress = $this->convertToBinaryString($ipAddress);
-            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Converts an IPv6 address to a binary string.
-     * @param string $address The IPv6 address in standard notation.
-     * @return string Returns the address as a string of bits.
-     */
-    private function convertToBinaryString($address)
-    {
-        $binaryString = '';
-        $hexString    = strtoupper(bin2hex(inet_pton($address)));
-        foreach (str_split($hexString) as $char) {
-            $binaryString .= self::$hexMaps[$char];
-        }
-        return $binaryString;
     }
 
     /**
@@ -282,5 +258,45 @@ class Whip
             $longAddress = ip2long($range);
             return array($longAddress, $longAddress);
         }
+    }
+
+    /**
+     * Returns whether or not an IPv6 address is in the given whitelist of
+     * IPs and ranges.
+     * @param array $whitelist The array of whitelisted IPs and addresses.
+     * @param string $ipAddress An IPv6 address.
+     * @return bool Returns true if the address is in the whitelist and false
+     *         otherwise.
+     */
+    private function isIp6Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV6])) {
+            return false;
+        }
+        // handle IPv6 CIDR notation only
+        foreach ($whitelist[self::IPV6] as $range) {
+            list($network, $mask) = explode('/', $range);
+            $binaryNetwork = $this->convertToBinaryString($network);
+            $binaryAddress = $this->convertToBinaryString($ipAddress);
+            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Converts an IPv6 address to a binary string.
+     * @param string $address The IPv6 address in standard notation.
+     * @return string Returns the address as a string of bits.
+     */
+    private function convertToBinaryString($address)
+    {
+        $binaryString = '';
+        $hexString    = strtoupper(bin2hex(inet_pton($address)));
+        foreach (str_split($hexString) as $char) {
+            $binaryString .= self::$hexMaps[$char];
+        }
+        return $binaryString;
     }
 }
