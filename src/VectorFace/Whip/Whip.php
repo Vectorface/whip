@@ -56,26 +56,6 @@ class Whip
     /** The whitelist key for IPv6 addresses */
     const IPV6 = 'ipv6';
 
-    /** Quick lookup table to map hex digits to 4-character binary representation. */
-    private static $hexMaps = array(
-        '0' => '0000',
-        '1' => '0001',
-        '2' => '0010',
-        '3' => '0011',
-        '4' => '0100',
-        '5' => '0101',
-        '6' => '0110',
-        '7' => '0111',
-        '8' => '1000',
-        '9' => '1001',
-        'A' => '1010',
-        'B' => '1011',
-        'C' => '1100',
-        'D' => '1101',
-        'E' => '1110',
-        'F' => '1111'
-    );
-
     /** The array of mapped header strings. */
     private static $headers = array(
         self::CUSTOM_HEADERS     => array(),
@@ -295,11 +275,21 @@ class Whip
      */
     private function convertToBinaryString($address)
     {
-        $binaryString = '';
-        $hexString    = strtoupper(bin2hex(inet_pton($address)));
-        foreach (str_split($hexString) as $char) {
-            $binaryString .= self::$hexMaps[$char];
-        }
-        return $binaryString;
+        return implode(
+            '',
+            array_map(
+                [__CLASS__, 'hexToBinary'],
+                str_split(bin2hex(inet_pton($address)))
+            )
+        );
+    }
+    /**
+     * Converts a hexadecimal character to a 4-digit binary string.
+     * @param string $hex The hexadecimal character.
+     * @return string Returns a 4-digit binary string.
+     */
+    private static function hexToBinary($hex)
+    {
+        return str_pad(base_convert($hex, 16, 2), 4, '0', STR_PAD_LEFT);
     }
 }
