@@ -278,7 +278,7 @@ class Whip
         return implode(
             '',
             array_map(
-                [__CLASS__, 'hexToBinary'],
+                array(__CLASS__, 'hexToBinary'),
                 str_split(bin2hex(inet_pton($address)))
             )
         );
