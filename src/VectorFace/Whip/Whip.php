@@ -127,36 +127,38 @@ class Whip
 
     /**
      * Returns the IP address of the client using the given methods.
-     * @param int $enabled (optional) The enabled methods. If not specified, the
-     *        class will attempt all known methods. The methods will be
-     *        attempted in order from most specific to most generic.
+     * @param array $source (optional) The source array. By default, the class
+     *        will use $_SERVER.
      * @return string Returns the IP address as a string or false if no
      *         IP address could be found.
      */
-    public function getIpAddress()
+    public function getIpAddress($source = null)
     {
+        $source = is_array($source) ? $source : $_SERVER;
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
             if (!($key & $this->enabled) // Skip this header if not enabled
                     // skip this header if the IP address is in the whilelist
                     || ($localAddress && isset($this->whitelist[$key])
                     && is_array($this->whitelist[$key])
-                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
+                    && !$this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
-            return $this->extractAddressFromHeaders($headers);
+            return $this->extractAddressFromHeaders($source, $headers);
         }
         return false;
     }
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
+     * @param array $source (optional) The source array. By default, the class
+     *        will use $_SERVER.
      * @return mixed Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
-    public function getValidIpAddress()
+    public function getValidIpAddress($source = null)
     {
-        $ipAddress = $this->getIpAddress();
+        $ipAddress = $this->getIpAddress($source);
         if (false === $ipAddress || false === @inet_pton($ipAddress)) {
             return false;
         }
@@ -169,17 +171,18 @@ class Whip
      * If the IP address is a list of comma separated values, the last value
      * in the list will be returned.
      * If no IP address is found, we return false.
+     * @param array $source  The source array to pull the data from.
      * @param array $headers The list of headers to check.
      * @return mixed Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
-    private function extractAddressFromHeaders($headers)
+    private function extractAddressFromHeaders($source, $headers)
     {
         foreach ($headers as $header) {
-            if (empty($_SERVER[$header])) {
+            if (empty($source[$header])) {
                 continue;
             }
-            $list = explode(',', $_SERVER[$header]);
+            $list = explode(',', $source[$header]);
             return trim(end($list));
         }
         return false;

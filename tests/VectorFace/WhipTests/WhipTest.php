@@ -349,4 +349,21 @@ class WhipTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals('24.24.24.24', $lookup->getIpAddress());
     }
+
+    /**
+     * Tests that if we specify the source array, it overrides any values found
+     * in the $_SERVER array.
+     */
+    public function testSourceArrayOverridesServerSuperglobal()
+    {
+        $_SERVER = array(
+            'REMOTE_ADDR' => '127.0.0.1'
+        );
+        $source = array(
+            'REMOTE_ADDR' => '24.24.24.24'
+        );
+        $lookup = new Whip(Whip::REMOTE_ADDR);
+        $this->assertNotEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
+        $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress($source));
+    }
 }
