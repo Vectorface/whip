@@ -47,8 +47,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests that we get back 127.0.0.1 where there is no superglobal information
-     * and when we specify a bitmask for the enabled headers.
+     * Tests that we get false when no valid IP address could be found.
      */
     public function testNoAddresFoundDueToBitmask()
     {
