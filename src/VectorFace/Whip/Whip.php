@@ -56,6 +56,8 @@ class Whip
     /** The whitelist key for IPv6 addresses */
     const IPV6 = 'ipv6';
 
+    private $serverArray;
+    
     /** Quick lookup table to map hex digits to 4-character binary representation. */
     private static $hexMaps = array(
         '0' => '0000',
@@ -107,10 +109,14 @@ class Whip
     /**
      * Constructor for the class.
      */
-    public function __construct($enabled = self::ALL_METHODS, $whitelists = array())
+    public function __construct(Array $serverArray, $enabled = self::ALL_METHODS, $whitelists = array())
     {
-        $this->enabled   = (int) $enabled;
-        $this->whitelist = is_array($whitelists) ? $whitelists : array();
+        $this->serverArray = $serverArray;
+        if ( ! is_array($serverArray)) {
+            throw new \Exception("No _SERVER array passed in to Whip::__construct().");
+        }
+        $this->enabled     = (int) $enabled;
+        $this->whitelist   = is_array($whitelists) ? $whitelists : array();
     }
 
     /**
@@ -134,7 +140,7 @@ class Whip
      */
     public function getIpAddress()
     {
-        $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
+        $localAddress = isset($this->serverArray['REMOTE_ADDR']) ? $this->serverArray['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
             if ( ! ($key & $this->enabled) // Skip this header if not enabled
                     // skip this header if the IP address is in the whilelist
@@ -151,10 +157,10 @@ class Whip
     public function addressFromHeaders($headers)
     {
         foreach ($headers as $header) {
-            if (empty($_SERVER[$header])) {
+            if (empty($this->serverArray[$header])) {
                 continue;
             }
-            $list = explode(',', $_SERVER[$header]);
+            $list = explode(',', $this->serverArray[$header]);
             return trim(end($list));
         }
         return false;
