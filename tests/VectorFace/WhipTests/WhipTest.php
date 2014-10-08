@@ -325,7 +325,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER = array(
             'REMOTE_ADDR' => '127.0.0.1',
-            'X_REAL_IP' => '32.32.32.32'
+            'HTTP_CUSTOM_SECRET_HEADER' => '32.32.32.32'
         );
         $lookup = new Whip(
             $_SERVER,
@@ -341,8 +341,23 @@ class WhipTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals(
             '32.32.32.32',
-            $lookup->addCustomHeader('X_REAL_IP')->getIpAddress()
+            $lookup->addCustomHeader('HTTP_CUSTOM_SECRET_HEADER')->getIpAddress()
         );
+    }
+
+    /**
+     * Test HTTP_X_REAL_IP header.
+     */
+    public function testHttpXRealIpHeader()
+    {
+        $_SERVER = array(
+            'REMOTE_ADDR' => '127.0.0.1',
+            'HTTP_X_REAL_IP' => '24.24.24.24'
+        );
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS | Whip::REMOTE_ADDR
+        );
+        $this->assertEquals('24.24.24.24', $lookup->getIpAddress());
     }
     
     public function testThrowsExceptionOnNoServerArray()

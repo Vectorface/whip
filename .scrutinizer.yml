@@ -1,0 +1,9 @@
+tools:
+    external_code_coverage: true
+    php_code_sniffer:
+        config:
+            standard: "PSR2"
+
+checks:
+    php:
+        code_rating: true

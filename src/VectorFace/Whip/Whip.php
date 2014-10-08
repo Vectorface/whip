@@ -93,7 +93,8 @@ class Whip
             'HTTP_X_FORWARDED',
             'HTTP_X_CLUSTER_CLIENT_IP',
             'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED'
+            'HTTP_FORWARDED',
+            'HTTP_X_REAL_IP',
         ),
         self::REMOTE_ADDR        => array(
             'REMOTE_ADDR'
@@ -142,26 +143,15 @@ class Whip
     {
         $localAddress = isset($this->serverArray['REMOTE_ADDR']) ? $this->serverArray['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
-            if ( ! ($key & $this->enabled) // Skip this header if not enabled
+            if (!($key & $this->enabled) // Skip this header if not enabled
                     // skip this header if the IP address is in the whilelist
-                    || $localAddress && isset($this->whitelist[$key]) 
-                    && is_array($this->whitelist[$key]) 
-                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress)) {
+                    || ($localAddress && isset($this->whitelist[$key])
+                    && is_array($this->whitelist[$key])
+                    && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
-            return $this->addressFromHeaders($headers);
-        }
-        return false;
-    }
 
-    public function addressFromHeaders($headers)
-    {
-        foreach ($headers as $header) {
-            if (empty($this->serverArray[$header])) {
-                continue;
-            }
-            $list = explode(',', $this->serverArray[$header]);
-            return trim(end($list));
+            return $this->extractAddressFromHeaders($headers);
         }
         return false;
     }
@@ -181,6 +171,28 @@ class Whip
     }
 
     /**
+     * Finds the first element in $headers that is present in $_SERVER and
+     * returns the IP address mapped to that value.
+     * If the IP address is a list of comma separated values, the last value
+     * in the list will be returned.
+     * If no IP address is found, we return false.
+     * @param array $headers The list of headers to check.
+     * @return mixed Returns the IP address as a string or false if no IP
+     *         IP address was found.
+     */
+    private function extractAddressFromHeaders($headers)
+    {
+        foreach ($headers as $header) {
+            if (empty($this->serverArray[$header])) {
+                continue;
+            }
+            $list = explode(',', $this->serverArray[$header]);
+            return trim(end($list));
+        }
+        return false;
+    }
+
+    /**
      * Returns whether or not the given IP address falls within any of the
      * whitelisted IP ranges.
      * @param array $whitelist The array of whitelisted IP address ranges.
@@ -196,6 +208,14 @@ class Whip
         return $this->isIp6Whitelisted($whitelist, $ipAddress);
     }
 
+    /**
+     * Returns whether or not an IPv4 address is in the given whitelist of
+     * IPs and ranges.
+     * @param array $whitelist The array of whitelisted IPs and addresses.
+     * @param string $ipAddress An IPv4 address.
+     * @return bool Returns true if the address is in the whitelist and false
+     *         otherwise.
+     */
     private function isIp4Whitelisted($whitelist, $ipAddress)
     {
         if (empty($whitelist[self::IPV4])) {
@@ -210,38 +230,6 @@ class Whip
             }
         }
         return false;
-    }
-    
-    private function isIp6Whitelisted($whitelist, $ipAddress)
-    {
-        if (empty($whitelist[self::IPV6])) {
-            return false;
-        }
-        // handle IPv6 CIDR notation only
-        foreach ($whitelist[self::IPV6] as $range) {
-            list($network, $mask) = explode('/', $range);
-            $binaryNetwork = $this->convertToBinaryString($network);
-            $binaryAddress = $this->convertToBinaryString($ipAddress);
-            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Converts an IPv6 address to a binary string.
-     * @param string $address The IPv6 address in standard notation.
-     * @return string Returns the address as a string of bits.
-     */
-    private function convertToBinaryString($address)
-    {
-        $binaryString = '';
-        $hexString    = strtoupper(bin2hex(inet_pton($address)));
-        foreach (str_split($hexString) as $char) {
-            $binaryString .= self::$hexMaps[$char];
-        }
-        return $binaryString;
     }
 
     /**
@@ -279,4 +267,43 @@ class Whip
         }
     }
 
+    /**
+     * Returns whether or not an IPv6 address is in the given whitelist of
+     * IPs and ranges.
+     * @param array $whitelist The array of whitelisted IPs and addresses.
+     * @param string $ipAddress An IPv6 address.
+     * @return bool Returns true if the address is in the whitelist and false
+     *         otherwise.
+     */
+    private function isIp6Whitelisted($whitelist, $ipAddress)
+    {
+        if (empty($whitelist[self::IPV6])) {
+            return false;
+        }
+        // handle IPv6 CIDR notation only
+        foreach ($whitelist[self::IPV6] as $range) {
+            list($network, $mask) = explode('/', $range);
+            $binaryNetwork = $this->convertToBinaryString($network);
+            $binaryAddress = $this->convertToBinaryString($ipAddress);
+            if (substr($binaryNetwork, 0, $mask) === substr($binaryAddress, 0, $mask)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Converts an IPv6 address to a binary string.
+     * @param string $address The IPv6 address in standard notation.
+     * @return string Returns the address as a string of bits.
+     */
+    private function convertToBinaryString($address)
+    {
+        $binaryString = '';
+        $hexString    = strtoupper(bin2hex(inet_pton($address)));
+        foreach (str_split($hexString) as $char) {
+            $binaryString .= self::$hexMaps[$char];
+        }
+        return $binaryString;
+    }
 }

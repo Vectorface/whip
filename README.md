@@ -1,4 +1,8 @@
-# Whip [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
+#Whip
+[![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
+[![Code Coverage](https://scrutinizer-ci.com/g/Vectorface/whip/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Vectorface/whip/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/vectorface/whip/v/stable.svg)](https://packagist.org/packages/vectorface/whip)
+[![License](https://poser.pugx.org/vectorface/whip/license.svg)](https://packagist.org/packages/vectorface/whip)
 
 Whip (stands for Which Ip) is a lightweight class for returning a client's IP address in PHP.
 
@@ -111,6 +115,7 @@ To combine methods, use the bitwise OR operator `|`. The current methods are:
     - `$_SERVER['HTTP_X_CLUSTER_CLIENT_IP']`
     - `$_SERVER['HTTP_FORWARDED_FOR']`
     - `$_SERVER['HTTP_FORWARDED']`
+    - `$_SERVER['HTTP_X_REAL_IP']`
 - `Whip::CLOUDFLARE_HEADERS` - Uses the CloudFlare provided HTTP header
   "CF-Connecting-IP".
 - `Whip::INCAPSULA_HEADERS` - Use the Incapsula provided HTTP header
