@@ -32,7 +32,7 @@ Add the required `use` statement to your class
 
 To fetch an IP address using every implemented method, you can simply do
 
-    $whip = new Whip();
+    $whip = new Whip($_SERVER);
     $clientAddress = $whip->getValidIpAddress();
 
 The class will attempt every method to retrieve the client's IP address
@@ -42,7 +42,7 @@ cases.
 Note, that the method `Whip::getValidIpAddress` will return `false` if no
 valid IP address could be determined, so it is important to check for errors.
 
-    $whip = new Whip();
+    $whip = new Whip($_SERVER);
     if (false === ($clientAddress = $whip->getValidIpAddress())) {
         // handle the error
     }
@@ -52,7 +52,7 @@ enabled methods to the constructor. Here is an example of looking up the IP
 address using CloudFlare's custom HTTP header, and falling back to
 `$_SERVER['REMOTE_ADDR']` otherwise.
 
-    $whip = new Whip(Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
+    $whip = new Whip($_SERVER, Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
     $clientAddress = $whip->getValidIpAddress();
 
 This method works, but there is the problem that the custom HTTP header can
@@ -132,6 +132,7 @@ we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
 `$_SERVER['REMOTE_ADDR']` if the custom header doesn't work).
 
     $whip = new Whip(
+        $_SERVER,
         Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
         [
             Whip::CUSTOM_HEADERS => [
