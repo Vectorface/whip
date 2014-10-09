@@ -365,4 +365,34 @@ class WhipTest extends PHPUnit_Framework_TestCase
         $this->assertNotEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
         $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress($source));
     }
+
+    /**
+     * Tests that if we specify the source array through Whip::setSource, the
+     * class will override any values found in $_SERVER.
+     */
+    public function testSetSourceArrayOverridesServerSuperglobal()
+    {
+        $_SERVER = array(
+            'REMOTE_ADDR' => '127.0.0.1'
+        );
+        $source = array(
+            'REMOTE_ADDR' => '24.24.24.24'
+        );
+        $lookup = new Whip(Whip::REMOTE_ADDR);
+        $this->assertNotEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
+        $lookup->setSource($source);
+        $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
+    }
+
+    /**
+     * Tests that an exception is thrown if we try to call Whip::setSource with
+     * a parameter that is not an array.
+     * @expectedException \Exception
+     * @expectedExceptionMessage Source must be an array.
+     */
+    public function testSetSourceOnlyAcceptsArray()
+    {
+        $lookup = new Whip();
+        $lookup->setSource(null);
+    }
 }

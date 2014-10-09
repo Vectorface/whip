@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 namespace VectorFace\Whip;
 
+use \Exception;
+
 /**
  * A class for accurately looking up a client's IP address.
  * This class checks a call time configurable list of headers in the $_SERVER
@@ -85,6 +87,9 @@ class Whip
     /** an array of whitelisted IPs to allow per method */
     private $whitelist;
 
+    /** an array holding the source of addresses we will check */
+    private $source;
+
     /**
      * Constructor for the class.
      */
@@ -92,6 +97,7 @@ class Whip
     {
         $this->enabled   = (int) $enabled;
         $this->whitelist = is_array($whitelists) ? $whitelists : array();
+        $this->source    = $_SERVER;
     }
 
     /**
@@ -106,15 +112,31 @@ class Whip
     }
 
     /**
+     * Sets the source array to use to lookup the addresses. If not specified,
+     * the class will fallback to $_SERVER.
+     * @param array $source The source array.
+     * @return Whip Returns $this.
+     */
+    public function setSource($source)
+    {
+        if (!is_array($source)) {
+            throw new Exception('Source must be an array.');
+        }
+        $this->source = $source;
+        return $this;
+    }
+
+    /**
      * Returns the IP address of the client using the given methods.
      * @param array $source (optional) The source array. By default, the class
-     *        will use $_SERVER.
+     *        will use the value passed to Whip::setSource or fallback to
+     *        $_SERVER.
      * @return string Returns the IP address as a string or false if no
      *         IP address could be found.
      */
     public function getIpAddress($source = null)
     {
-        $source = is_array($source) ? $source : $_SERVER;
+        $source = is_array($source) ? $source : $this->source;
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
             if (!($key & $this->enabled) // Skip this header if not enabled
@@ -132,7 +154,8 @@ class Whip
     /**
      * Returns the valid IP address or false if no valid IP address was found.
      * @param array $source (optional) The source array. By default, the class
-     *        will use $_SERVER.
+     *        will use the value passed to Whip::setSource or fallback to
+     *        $_SERVER.
      * @return mixed Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
