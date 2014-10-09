@@ -355,6 +355,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_REAL_IP' => '24.24.24.24'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS | Whip::REMOTE_ADDR
         );
         $this->assertEquals('24.24.24.24', $lookup->getIpAddress());

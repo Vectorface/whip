@@ -113,9 +113,6 @@ class Whip
     public function __construct(Array $serverArray, $enabled = self::ALL_METHODS, $whitelists = array())
     {
         $this->serverArray = $serverArray;
-        if ( ! is_array($serverArray)) {
-            throw new \Exception("No _SERVER array passed in to Whip::__construct().");
-        }
         $this->enabled     = (int) $enabled;
         $this->whitelist   = is_array($whitelists) ? $whitelists : array();
     }
