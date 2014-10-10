@@ -361,12 +361,6 @@ class WhipTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('24.24.24.24', $lookup->getIpAddress());
     }
     
-    public function testThrowsExceptionOnNoServerArray()
-    {
-        $this->setExpectedException('\Exception');
-        new Whip();
-    }
-    
     public function testZeroConfMethod()
     {
         $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
