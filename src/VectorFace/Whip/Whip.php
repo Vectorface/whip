@@ -151,8 +151,11 @@ class Whip
                     && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
-
-            return $this->extractAddressFromHeaders($headers);
+            
+            $address = $this->extractAddressFromHeaders($headers);
+            if ($address) {
+                return $address;
+            }
         }
         return false;
     }
