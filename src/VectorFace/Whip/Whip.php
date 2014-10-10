@@ -117,7 +117,8 @@ class Whip
         $this->whitelist   = is_array($whitelists) ? $whitelists : array();
     }
     
-    public static function createFromGlobals() {
+    public static function createFromGlobals()
+    {
         return new static($_SERVER);
     }
 
