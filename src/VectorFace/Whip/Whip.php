@@ -107,8 +107,13 @@ class Whip
     /** an array of whitelisted IPs to allow per method */
     private $whitelist;
 
+
     /**
-     * Constructor for the class.
+     * 
+     * @param array $serverArray Normally the _SERVER array
+     * @param int $enabled Integer representing the allowable methods for 
+     *      determining the ip address
+     * @param array $whitelists array of ips, ranges that may use proxy headers
      */
     public function __construct(Array $serverArray, $enabled = self::ALL_METHODS, $whitelists = array())
     {
@@ -135,9 +140,6 @@ class Whip
 
     /**
      * Returns the IP address of the client using the given methods.
-     * @param int $enabled (optional) The enabled methods. If not specified, the
-     *        class will attempt all known methods. The methods will be
-     *        attempted in order from most specific to most generic.
      * @return string Returns the IP address as a string or false if no
      *         IP address could be found.
      */
@@ -163,7 +165,7 @@ class Whip
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
-     * @return mixed Returns the IP address (as a string) of the client or false
+     * @return false|string Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
     public function getValidIpAddress()
@@ -182,7 +184,7 @@ class Whip
      * in the list will be returned.
      * If no IP address is found, we return false.
      * @param array $headers The list of headers to check.
-     * @return mixed Returns the IP address as a string or false if no IP
+     * @return string|false Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
     private function extractAddressFromHeaders($headers)
