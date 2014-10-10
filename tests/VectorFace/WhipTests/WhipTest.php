@@ -366,4 +366,20 @@ class WhipTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\Exception');
         new Whip();
     }
+    
+    public function testZeroConfMethod()
+    {
+        $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
+        $whip = Whip::createFromGlobals();
+        
+        $this->assertEquals('24.24.24.24', $whip->getIpAddress());
+    }
+    
+    public function testLookupWithNoMethodsSpecified()
+    {
+        $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
+        $whip = new Whip($_SERVER, Whip::ALL_METHODS);
+        
+        $this->assertEquals('24.24.24.24', $whip->getIpAddress());
+    }
 }
