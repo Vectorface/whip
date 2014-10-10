@@ -116,6 +116,10 @@ class Whip
         $this->enabled     = (int) $enabled;
         $this->whitelist   = is_array($whitelists) ? $whitelists : array();
     }
+    
+    public static function CreateFromGlobals() {
+        return new $this($_SERVER);
+    }
 
     /**
      * Adds a custom header to the list.

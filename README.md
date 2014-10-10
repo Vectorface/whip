@@ -30,14 +30,28 @@ Add the required `use` statement to your class
 
     use VectorFace\Whip\Whip;
 
+### Zero configuration
 To fetch an IP address using every implemented method, you can simply do
 
-    $whip = new Whip($_SERVER);
+    $whip = Whip::CreateFromGlobals();
     $clientAddress = $whip->getValidIpAddress();
 
 The class will attempt every method to retrieve the client's IP address
 starting with very specific use cases and falling back to more general use
 cases.
+
+### Dependency Injection
+If you are using a service container and/or sub-requests, you can also use Whip
+by instantiating it yourself and passing in the _SERVER array, or an object that
+contains the same information (ie, $request->get('server') in symfony.
+
+    $whip = new Whip($_SERVER);
+
+    or 
+
+    $whip = new Whip($request->get('server'));
+
+
 
 Note, that the method `Whip::getValidIpAddress` will return `false` if no
 valid IP address could be determined, so it is important to check for errors.
