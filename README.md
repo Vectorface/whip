@@ -18,11 +18,11 @@ spoofed as well and we want to present a final solution anyone can deploy.
 
 ## Installing Whip.
 
-Simply add Whip to your composer.json `require` field like so:
+Simply run the following [composer](https://getcomposer.org/) command:
 
-    "require": {
-        "vectorface/whip": "~0.1.0"
-    }
+```shell
+$ composer require vectorface/whip
+```
 
 ## Using Whip
 
