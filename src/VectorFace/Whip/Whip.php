@@ -56,6 +56,8 @@ class Whip
     /** The whitelist key for IPv6 addresses */
     const IPV6 = 'ipv6';
 
+    private $serverArray;
+    
     /** Quick lookup table to map hex digits to 4-character binary representation. */
     private static $hexMaps = array(
         '0' => '0000',
@@ -105,13 +107,24 @@ class Whip
     /** an array of whitelisted IPs to allow per method */
     private $whitelist;
 
+
     /**
-     * Constructor for the class.
+     * 
+     * @param array $serverArray Normally the _SERVER array
+     * @param int $enabled Integer representing the allowable methods for 
+     *      determining the ip address
+     * @param array $whitelists array of ips, ranges that may use proxy headers
      */
-    public function __construct($enabled = self::ALL_METHODS, $whitelists = array())
+    public function __construct(Array $serverArray, $enabled = self::ALL_METHODS, $whitelists = array())
     {
-        $this->enabled   = (int) $enabled;
-        $this->whitelist = is_array($whitelists) ? $whitelists : array();
+        $this->serverArray = $serverArray;
+        $this->enabled     = (int) $enabled;
+        $this->whitelist   = is_array($whitelists) ? $whitelists : array();
+    }
+    
+    public static function createFromGlobals()
+    {
+        return new static($_SERVER);
     }
 
     /**
@@ -127,15 +140,12 @@ class Whip
 
     /**
      * Returns the IP address of the client using the given methods.
-     * @param int $enabled (optional) The enabled methods. If not specified, the
-     *        class will attempt all known methods. The methods will be
-     *        attempted in order from most specific to most generic.
      * @return string Returns the IP address as a string or false if no
      *         IP address could be found.
      */
     public function getIpAddress()
     {
-        $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
+        $localAddress = isset($this->serverArray['REMOTE_ADDR']) ? $this->serverArray['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
             if (!($key & $this->enabled) // Skip this header if not enabled
                     // skip this header if the IP address is in the whilelist
@@ -144,14 +154,18 @@ class Whip
                     && ! $this->isIpWhitelisted($this->whitelist[$key], $localAddress))) {
                 continue;
             }
-            return $this->extractAddressFromHeaders($headers);
+            
+            $address = $this->extractAddressFromHeaders($headers);
+            if ($address) {
+                return $address;
+            }
         }
         return false;
     }
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
-     * @return mixed Returns the IP address (as a string) of the client or false
+     * @return false|string Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
     public function getValidIpAddress()
@@ -170,16 +184,16 @@ class Whip
      * in the list will be returned.
      * If no IP address is found, we return false.
      * @param array $headers The list of headers to check.
-     * @return mixed Returns the IP address as a string or false if no IP
+     * @return string|false Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
     private function extractAddressFromHeaders($headers)
     {
         foreach ($headers as $header) {
-            if (empty($_SERVER[$header])) {
+            if (empty($this->serverArray[$header])) {
                 continue;
             }
-            $list = explode(',', $_SERVER[$header]);
+            $list = explode(',', $this->serverArray[$header]);
             return trim(end($list));
         }
         return false;

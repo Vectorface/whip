@@ -2,3 +2,4 @@ composer.lock
 composer.phar
 coverage/
 vendor/
+/nbproject/

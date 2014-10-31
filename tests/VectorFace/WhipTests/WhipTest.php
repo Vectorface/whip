@@ -42,7 +42,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     public function testEmptySuperglobal()
     {
         $_SERVER = array();
-        $lookup = new Whip();
+        $lookup = new Whip($_SERVER);
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -53,7 +53,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     public function testNoAddresFoundDueToBitmask()
     {
         $_SERVER = array('REMOTE_ADDR' => '127.0.0.1');
-        $lookup = new Whip(Whip::PROXY_HEADERS);
+        $lookup = new Whip($_SERVER, Whip::PROXY_HEADERS);
         $this->assertTrue(false === $lookup->getIpAddress());
     }
 
@@ -63,7 +63,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     public function testRemoteAddrMethod()
     {
         $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
-        $lookup = new Whip(Whip::REMOTE_ADDR);
+        $lookup = new Whip($_SERVER, Whip::REMOTE_ADDR);
         $this->assertEquals('24.24.24.24', $lookup->getValidIpAddress());
     }
 
@@ -73,7 +73,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     public function testInvalidIPv4Address()
     {
         $_SERVER = array('REMOTE_ADDR' => '127.0.0.01');
-        $lookup = new Whip(Whip::REMOTE_ADDR);
+        $lookup = new Whip($_SERVER, Whip::REMOTE_ADDR);
         $this->assertTrue(false === $lookup->getValidIpAddress());
     }
 
@@ -83,7 +83,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     public function testValidIPv6Address()
     {
         $_SERVER = array('REMOTE_ADDR' => '::1');
-        $lookup = new Whip(Whip::REMOTE_ADDR);
+        $lookup = new Whip($_SERVER, Whip::REMOTE_ADDR);
         $this->assertEquals('::1', $lookup->getValidIpAddress());
     }
 
@@ -98,6 +98,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '192.168.1.1,32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -124,6 +125,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -150,6 +152,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -176,6 +179,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -202,6 +206,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -228,6 +233,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -251,6 +257,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -274,6 +281,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '24.24.24.24'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -297,6 +305,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_FORWARDED_FOR' => '::1'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
@@ -319,6 +328,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_CUSTOM_SECRET_HEADER' => '32.32.32.32'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
             array(
                 Whip::CUSTOM_HEADERS => array(
@@ -345,8 +355,25 @@ class WhipTest extends PHPUnit_Framework_TestCase
             'HTTP_X_REAL_IP' => '24.24.24.24'
         );
         $lookup = new Whip(
+            $_SERVER,
             Whip::PROXY_HEADERS | Whip::REMOTE_ADDR
         );
         $this->assertEquals('24.24.24.24', $lookup->getIpAddress());
+    }
+    
+    public function testZeroConfMethod()
+    {
+        $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
+        $whip = Whip::createFromGlobals();
+        
+        $this->assertEquals('24.24.24.24', $whip->getIpAddress());
+    }
+    
+    public function testLookupWithNoMethodsSpecified()
+    {
+        $_SERVER = array('REMOTE_ADDR' => '24.24.24.24');
+        $whip = new Whip($_SERVER, Whip::ALL_METHODS);
+        
+        $this->assertEquals('24.24.24.24', $whip->getIpAddress());
     }
 }
