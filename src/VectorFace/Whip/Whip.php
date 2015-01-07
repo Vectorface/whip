@@ -117,11 +117,8 @@ class Whip
      * @param array $source The source array.
      * @return Whip Returns $this.
      */
-    public function setSource($source)
+    public function setSource(array $source)
     {
-        if (!is_array($source)) {
-            throw new Exception('Source must be an array.');
-        }
         $this->source = $source;
         return $this;
     }

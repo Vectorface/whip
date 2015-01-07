@@ -383,16 +383,4 @@ class WhipTest extends PHPUnit_Framework_TestCase
         $lookup->setSource($source);
         $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
     }
-
-    /**
-     * Tests that an exception is thrown if we try to call Whip::setSource with
-     * a parameter that is not an array.
-     * @expectedException \Exception
-     * @expectedExceptionMessage Source must be an array.
-     */
-    public function testSetSourceOnlyAcceptsArray()
-    {
-        $lookup = new Whip();
-        $lookup->setSource(null);
-    }
 }
