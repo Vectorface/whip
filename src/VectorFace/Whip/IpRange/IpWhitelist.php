@@ -15,18 +15,20 @@ class IpWhitelist
 
     public function __construct(array $whitelists)
     {
-        $this->ipv4Whitelist = array();
-        if (isset($whitelists[self::IPV4]) && is_array($whitelists[self::IPV4])) {
-            $this->ipv4Whitelist = array_map(function($range) {
+        $this->ipv4Whitelist = $this->constructWhiteListForKey(
+            $whitelists,
+            self::IPV4,
+            function ($range) {
                 return new Ipv4Range($range);
-            }, array_values($whitelists[self::IPV4]));
-        }
-        $this->ipv6Whitelist = array();
-        if (isset($whitelists[self::IPV6]) && is_array($whitelists[self::IPV6])) {
-            $this->ipv6Whitelist = array_map(function($range) {
+            }
+        );
+        $this->ipv6Whitelist = $this->constructWhiteListForKey(
+            $whitelists,
+            self::IPV6,
+            function ($range) {
                 return new Ipv6Range($range);
-            }, array_values($whitelists[self::IPV6]));
-        }
+            }
+        );
     }
 
     public function isIpWhitelisted($ipAddress)
@@ -36,6 +38,15 @@ class IpWhitelist
             ($isIpv4Address) ? $this->ipv4Whitelist : $this->ipv6Whitelist,
             $ipAddress
         );
+    }
+
+    private function constructWhiteListForKey($whitelist, $key, $callback)
+    {
+        if (isset($whitelist[$key]) && is_array($whitelist[$key])) {
+            return array_map($callback, array_values($whitelist[$key]));
+        } else {
+            return array();
+        }
     }
 
     private function isIpInWhitelist($whitelist, $ipAddress)
