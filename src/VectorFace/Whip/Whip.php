@@ -3,7 +3,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 VectorFace, Inc.
+Copyright (c) 2015 VectorFace, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ use VectorFace\Whip\IpRange\IpWhitelist;
  * A class for accurately looking up a client's IP address.
  * This class checks a call time configurable list of headers in the $_SERVER
  * superglobal to determine the client's IP address.
- * @copyright VectorFace, Inc 2014
+ * @copyright VectorFace, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  * @author Cory Darby <ckdarby@vectorface.com>
  */

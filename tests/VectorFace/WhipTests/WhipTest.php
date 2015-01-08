@@ -2,7 +2,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014 VectorFace, Inc.
+Copyright (c) 2015 VectorFace, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ use VectorFace\Whip\IpRange\IpWhitelist;
 /**
  * Test class for testing Whip.
  * @backupGlobals enabled
- * @copyright VectorFace, Inc 2014
+ * @copyright VectorFace, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
 class WhipTest extends PHPUnit_Framework_TestCase
