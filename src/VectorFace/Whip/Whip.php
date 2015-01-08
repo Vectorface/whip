@@ -154,7 +154,7 @@ class Whip
      * @param array $source (optional) The source array. By default, the class
      *        will use the value passed to Whip::setSource or fallback to
      *        $_SERVER.
-     * @return mixed Returns the IP address (as a string) of the client or false
+     * @return string|false Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
     public function getValidIpAddress($source = null)
@@ -174,7 +174,7 @@ class Whip
      * If no IP address is found, we return false.
      * @param array $source  The source array to pull the data from.
      * @param array $headers The list of headers to check.
-     * @return mixed Returns the IP address as a string or false if no IP
+     * @return string|false Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
     private function extractAddressFromHeaders($source, $headers)
