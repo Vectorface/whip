@@ -136,12 +136,9 @@ class Whip
         $source = is_array($source) ? $source : $this->source;
         $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
         foreach (self::$headers as $key => $headers) {
-            if (!($key & $this->enabled)) {
-                // skip this header if not enabled
-                continue;
-            } elseif (isset($this->whitelist[$key]) &&
-                      !$this->whitelist[$key]->isIpWhitelisted($localAddress)) {
-                // skip this header if the IP address is not in the whilelist
+            if (!($key & $this->enabled) || !$this->isIpWhitelisted($key, $localAddress)) {
+                // skip this header if not enabled or if the local address
+                // is not whitelisted
                 continue;
             }
             return $this->extractAddressFromHeaders($source, $headers);
@@ -187,5 +184,22 @@ class Whip
             return trim(end($list));
         }
         return false;
+    }
+
+    /**
+     * Returns whether or not the given IP address is whitelisted for the given
+     * source key.
+     * @param string $key The source key.
+     * @param string $ipAddress The IP address.
+     * @return boolean Returns true if the IP address is whitelisted and false
+     *         otherwise. Returns true if the source does not have a whitelist
+     *         specified.
+     */
+    private function isIpWhitelisted($key, $ipAddress)
+    {
+        if (!isset($this->whitelist[$key])) {
+            return true;
+        }
+        return $this->whitelist[$key]->isIpWhitelisted($ipAddress);
     }
 }
