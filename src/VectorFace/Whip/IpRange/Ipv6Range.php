@@ -31,7 +31,7 @@ namespace VectorFace\Whip\IpRange;
  * @copyright VectorFace, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-class Ipv6Range extends IpRange
+class Ipv6Range implements IpRange
 {
 
     /** The size of the IPv6 range mask. */

@@ -31,7 +31,7 @@ namespace VectorFace\Whip\IpRange;
  * @copyright VectorFace, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-class Ipv4Range extends IpRange
+class Ipv4Range implements IpRange
 {
 
     /** the lower value of the range (as a long integer) */

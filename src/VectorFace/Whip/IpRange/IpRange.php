@@ -27,11 +27,11 @@ THE SOFTWARE.
 namespace VectorFace\Whip\IpRange;
 
 /**
- * An abstract class for IP ranges.
+ * An interface for IP ranges.
  * @copyright VectorFace, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-abstract class IpRange
+interface IpRange
 {
     /**
      * Returns whether or not a given IP address falls within this range.
@@ -39,5 +39,5 @@ abstract class IpRange
      * @return boolean Returns true if the IP address falls within the range
      *         and false otherwise.
      */
-    abstract public function containsIp($ipAddress);
+    public function containsIp($ipAddress);
 }
