@@ -174,7 +174,7 @@ if ($range->containsIp($ipv4Address)) {
 }
 
 $range = new VectorFace\Whip\IpRange\Ipv6Range('::1/32');
-if ($range->containsIp($ivp6Address)) {
+if ($range->containsIp($ipv6Address)) {
     // handle the IP address being within the range
 }
 ```
