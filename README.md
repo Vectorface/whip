@@ -152,7 +152,7 @@ we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
 
 For IPv4, Whip accepts three types of IP ranges:
 
-- Asterisk wildcard (192.168.*)
+- Asterisk wildcard (192.168.\*)
 - Dashed range (192.168.0.0-192.168.255.255)
 - CIDR bitmask notation (192.168.0.0/16)
 
@@ -160,3 +160,21 @@ For IPv6, Whip only accepts the CIDR bitmask notation (fc00::/7).
 
 Furthermore, you can specify a list of exact IP addresses instead of a list of
 ranges.
+
+## IP Range Filtering
+
+Whip can also be used to provide simple IP range matching. For example,
+
+```php
+<?php
+
+$range = new VectorFace\Whip\IpRange\Ipv4Range('10.0.*');
+if ($range->containsIp($ipv4Address)) {
+    // handle the IP address being within the range
+}
+
+$range = new VectorFace\Whip\IpRange\Ipv6Range('::1/32');
+if ($range->containsIp($ivp6Address)) {
+    // handle the IP address being within the range
+}
+```
