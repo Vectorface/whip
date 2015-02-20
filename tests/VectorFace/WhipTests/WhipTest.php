@@ -43,7 +43,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER = array();
         $lookup = new Whip();
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
@@ -54,7 +54,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER = array('REMOTE_ADDR' => '127.0.0.1');
         $lookup = new Whip(Whip::PROXY_HEADERS);
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
@@ -74,7 +74,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER = array('REMOTE_ADDR' => '127.0.0.01');
         $lookup = new Whip(Whip::REMOTE_ADDR);
-        $this->assertTrue(false === $lookup->getValidIpAddress());
+        $this->assertFalse($lookup->getValidIpAddress());
     }
 
     /**
@@ -214,7 +214,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
                 )
             )
         );
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
@@ -237,7 +237,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
                 )
             )
         );
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
@@ -283,7 +283,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
                 )
             )
         );
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
@@ -306,7 +306,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
                 )
             )
         );
-        $this->assertTrue(false === $lookup->getIpAddress());
+        $this->assertFalse($lookup->getIpAddress());
     }
 
     /**
