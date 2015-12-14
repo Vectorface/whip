@@ -29,7 +29,7 @@ namespace VectorFace\Whip\IpRange;
 /**
  * A class representing the list of whitelisted IP addresses.
  * @copyright VectorFace, Inc 2015
- * @author Daniel Bruce <dbruce@vectorface.com>
+ * @author Daniel Bruce <dbruce1126@gmail.com>
  */
 class IpWhitelist
 {

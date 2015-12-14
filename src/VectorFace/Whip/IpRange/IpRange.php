@@ -29,7 +29,7 @@ namespace VectorFace\Whip\IpRange;
 /**
  * An interface for IP ranges.
  * @copyright VectorFace, Inc 2015
- * @author Daniel Bruce <dbruce@vectorface.com>
+ * @author Daniel Bruce <dbruce1126@gmail.com>
  */
 interface IpRange
 {
