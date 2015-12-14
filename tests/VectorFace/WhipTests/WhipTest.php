@@ -72,7 +72,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidIPv4Address()
     {
-        $_SERVER = array('REMOTE_ADDR' => '127.0.0.01');
+        $_SERVER = array('REMOTE_ADDR' => '127.0.0.256');
         $lookup = new Whip(Whip::REMOTE_ADDR);
         $this->assertFalse($lookup->getValidIpAddress());
     }
