@@ -34,7 +34,7 @@ use VectorFace\Whip\IpRange\IpWhitelist;
  * This class checks a call time configurable list of headers in the $_SERVER
  * superglobal to determine the client's IP address.
  * @copyright VectorFace, Inc 2015
- * @author Daniel Bruce <dbruce@vectorface.com>
+ * @author Daniel Bruce <dbruce1126@gmail.com>
  * @author Cory Darby <ckdarby@vectorface.com>
  */
 class Whip

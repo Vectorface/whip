@@ -29,7 +29,7 @@ namespace VectorFace\Whip\IpRange;
 /**
  * A class representing an IPv6 address range.
  * @copyright VectorFace, Inc 2015
- * @author Daniel Bruce <dbruce@vectorface.com>
+ * @author Daniel Bruce <dbruce1126@gmail.com>
  */
 class Ipv6Range implements IpRange
 {
