@@ -3,7 +3,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 VectorFace, Inc.
+Copyright (c) 2015 Vectorface, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace VectorFace\Whip\IpRange;
+namespace Vectorface\Whip\IpRange;
 
 /**
  * A class representing the list of whitelisted IP addresses.
- * @copyright VectorFace, Inc 2015
+ * @copyright Vectorface, Inc 2015
  * @author Daniel Bruce <dbruce1126@gmail.com>
  */
 class IpWhitelist
@@ -55,12 +55,12 @@ class IpWhitelist
         $this->ipv4Whitelist = $this->constructWhiteListForKey(
             $whitelists,
             self::IPV4,
-            'VectorFace\\Whip\\IpRange\\Ipv4Range'
+            'Vectorface\\Whip\\IpRange\\Ipv4Range'
         );
         $this->ipv6Whitelist = $this->constructWhiteListForKey(
             $whitelists,
             self::IPV6,
-            'VectorFace\\Whip\\IpRange\\Ipv6Range'
+            'Vectorface\\Whip\\IpRange\\Ipv6Range'
         );
     }
 

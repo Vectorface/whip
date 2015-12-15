@@ -2,7 +2,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 VectorFace, Inc.
+Copyright (c) 2015 Vectorface, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,16 +22,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-namespace VectorFace\WhipTests;
+namespace Vectorface\WhipTests;
 
 use PHPUnit_Framework_TestCase;
-use VectorFace\Whip\Whip;
-use VectorFace\Whip\IpRange\IpWhitelist;
+use Vectorface\Whip\Whip;
+use Vectorface\Whip\IpRange\IpWhitelist;
 
 /**
  * Test class for testing Whip.
  * @backupGlobals enabled
- * @copyright VectorFace, Inc 2015
+ * @copyright Vectorface, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
 class WhipTest extends PHPUnit_Framework_TestCase
