@@ -62,7 +62,7 @@ class Ipv6Range implements IpRange
         // if the mask is false this means we have a full IP address as a
         // range so compare against the whole string
         if (false === $this->mask) {
-            return ($this->rangeSubstring === $ipAddress);
+            return ($this->rangeSubstring === $this->convertToBinaryString($ipAddress));
         }
 
         // remove the masked part of the address

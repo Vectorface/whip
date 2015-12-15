@@ -111,6 +111,9 @@ class WhipTest extends PHPUnit_Framework_TestCase
             )
         );
         $this->assertEquals('32.32.32.32', $lookup->getIpAddress());
+
+        $_SERVER['REMOTE_ADDR'] = '::1'; /* Repeat test for IPv6 */
+        $this->assertEquals('32.32.32.32', $lookup->getIpAddress());
     }
 
     /**
