@@ -28,6 +28,10 @@ namespace Vectorface\Whip;
 
 use \Exception;
 use Vectorface\Whip\IpRange\IpWhitelist;
+use Vectorface\Whip\Request\RequestAdapter;
+use Vectorface\Whip\Request\Psr7RequestAdapter;
+use Vectorface\Whip\Request\SuperglobalRequestAdapter;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * A class for accurately looking up a client's IP address.
@@ -57,22 +61,19 @@ class Whip
     private static $headers = array(
         self::CUSTOM_HEADERS     => array(),
         self::INCAPSULA_HEADERS  => array(
-            'HTTP_INCAP_CLIENT_IP'
+            'incap-client-ip'
         ),
         self::CLOUDFLARE_HEADERS => array(
-            'HTTP_CF_CONNECTING_IP'
+            'cf-connecting-ip'
         ),
         self::PROXY_HEADERS      => array(
-            'HTTP_CLIENT_IP',
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_FORWARDED',
-            'HTTP_X_CLUSTER_CLIENT_IP',
-            'HTTP_FORWARDED_FOR',
-            'HTTP_FORWARDED',
-            'HTTP_X_REAL_IP',
-        ),
-        self::REMOTE_ADDR        => array(
-            'REMOTE_ADDR'
+            'client-ip',
+            'x-forwarded-for',
+            'x-forwarded',
+            'x-cluster-client-ip',
+            'forwarded-for',
+            'forwarded',
+            'x-real-ip',
         ),
     );
 
@@ -82,7 +83,11 @@ class Whip
     /** the array of IP whitelist ranges to check against */
     private $whitelist;
 
-    /** an array holding the source of addresses we will check */
+    /**
+     * An object holding the source of addresses we will check
+     *
+     * @var RequestAdapter
+     */
     private $source;
 
     /**
@@ -90,10 +95,12 @@ class Whip
      * @param int $enabled The bitmask of enabled headers.
      * @param array $whitelists The array of IP ranges to be whitelisted.
      */
-    public function __construct($enabled = self::ALL_METHODS, array $whitelists = array())
+    public function __construct($enabled = self::ALL_METHODS, array $whitelists = array(), $source = null)
     {
         $this->enabled   = (int) $enabled;
-        $this->source    = $_SERVER;
+        if (isset($source)) {
+            $this->setSource($source);
+        }
         $this->whitelist = array();
         foreach ($whitelists as $header => $ipRanges) {
             $this->whitelist[$header] = new IpWhitelist($ipRanges);
@@ -107,19 +114,44 @@ class Whip
      */
     public function addCustomHeader($header)
     {
-        self::$headers[self::CUSTOM_HEADERS][] = $header;
+        if (strpos($header, 'HTTP_') === 0) {
+            $header = str_replace('_', '-', substr($header, 5));
+        }
+        self::$headers[self::CUSTOM_HEADERS][] = strtolower($header);
         return $this;
     }
 
     /**
-     * Sets the source array to use to lookup the addresses. If not specified,
-     * the class will fallback to $_SERVER.
-     * @param array $source The source array.
+     * Get a source adapter for a given source of IP data.
+     *
+     * @param mixed $source
+     * @param bool $fallback If true, fallback to $_SERVER if source is unusable.
+     */
+    public static function getSourceAdapter($source, $fallback = false)
+    {
+        if ($source instanceof RequestAdapter) {
+            return $source;
+        } elseif ($source instanceof ServerRequestInterface) {
+            return new Psr7RequestAdapter($source);
+        } elseif (is_array($source)) {
+            return new SuperglobalRequestAdapter($source);
+        } elseif ($fallback) {
+            return new SuperglobalRequestAdapter($_SERVER);
+        }
+
+        throw new \InvalidArgumentException("Unknown IP source.");
+    }
+
+    /**
+     * Sets the source data used to lookup the addresses.
+     *
+     * @param $source The source array.
      * @return Whip Returns $this.
      */
-    public function setSource(array $source)
+    public function setSource($source)
     {
-        $this->source = $source;
+        $this->source = static::getSourceAdapter($source);
+
         return $this;
     }
 
@@ -133,17 +165,20 @@ class Whip
      */
     public function getIpAddress($source = null)
     {
-        $source = is_array($source) ? $source : $this->source;
-        $localAddress = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : false;
+        $source = $source ? static::getSourceAdapter($source) : static::getSourceAdapter($this->source, true);
+        $remoteAddr = $source->getRemoteAddr();
+        $clientHeaders = $source->getHeaders();
+
         foreach (self::$headers as $key => $headers) {
-            if (!($key & $this->enabled) || !$this->isIpWhitelisted($key, $localAddress)) {
+            if (!($key & $this->enabled) || !$this->isIpWhitelisted($key, $remoteAddr)) {
                 // skip this header if not enabled or if the local address
                 // is not whitelisted
                 continue;
             }
-            return $this->extractAddressFromHeaders($source, $headers);
+            return $this->extractAddressFromHeaders($clientHeaders, $headers);
         }
-        return false;
+
+        return ($this->enabled & self::REMOTE_ADDR) ? $remoteAddr : false;
     }
 
     /**
