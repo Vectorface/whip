@@ -26,17 +26,19 @@ THE SOFTWARE.
 
 namespace Vectorface\Whip\Request;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
- * Provide IP address data from the $_SERVER superglobal.
+ * Provide IP address data from ta PSR-7 request.
  */
-class SuperglobalRequestAdapter implements RequestAdapter
+class Psr7RequestAdapter implements RequestAdapter
 {
     /**
-     * The $_SERVER-style array that serves as the source of data.
+     * The PSR-7 request that serves as the source of data.
      *
-     * @var string[]
+     * @var Psr\Http\Message\ServerRequestInterface
      */
-    private $server;
+    private $request;
 
     /**
      * A formatted version of the HTTP headers: ["header" => "value", ...]
@@ -50,39 +52,25 @@ class SuperglobalRequestAdapter implements RequestAdapter
      *
      * @param string[] $server An array in a format like PHP's $_SERVER var.
      */
-    public function __construct(array $server)
+    public function __construct(ServerRequestInterface $request)
     {
-        $this->server = $server;
+        $this->request = $request;
     }
 
     public function getRemoteAddr()
     {
-        return isset($this->server['REMOTE_ADDR']) ? $this->server['REMOTE_ADDR'] : null;
+        $server = $this->request->getServerParams();
+        return isset($server['REMOTE_ADDR']) ? $server['REMOTE_ADDR'] : null;
     }
 
     public function getHeaders()
     {
         if (!isset($this->headers)) {
-            $this->headers = $this->serverToHeaders($this->server);
-        }
-        return $this->headers;
-    }
-
-    /**
-     * Convert from $_SERVER-style format to normal header names.
-     *
-     * @param string[] $server The $_SERVER-style array.
-     * @return string[] Array of headers with lowercased keys.
-     */
-    private static function serverToHeaders(array $server)
-    {
-        $headers = [];
-        foreach ($server as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
-                $key = strtolower(str_replace("_", '-', substr($key, 5)));
-                $headers[$key] = $value;
+            $this->headers = [];
+            foreach ($this->request->getHeaders() as $header => $values) {
+                $this->headers[strtolower($header)] = end($values);
             }
         }
-        return $headers;
+        return $this->headers;
     }
 }
