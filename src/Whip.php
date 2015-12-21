@@ -123,42 +123,6 @@ class Whip
     }
 
     /**
-     * Get a source/request adapter for a given source of IP data.
-     *
-     * @param mixed $source A supported source of request data.
-     * @return RequestAdapter A RequestAdapter implementation for the given source.
-     */
-    private function getRequestAdapter($source)
-    {
-        if ($source instanceof RequestAdapter) {
-            return $source;
-        } elseif ($source instanceof ServerRequestInterface) {
-            return new Psr7RequestAdapter($source);
-        } elseif (is_array($source)) {
-            return new SuperglobalRequestAdapter($source);
-        }
-
-        throw new \InvalidArgumentException("Unknown IP source.");
-    }
-
-    /**
-     * Given available sources, get the first available source of IP data.
-     *
-     * @param mixed $source A source data argument, if available.
-     * @return mixed The best available source, after fallbacks.
-     */
-    private function coalesceSources($source = null)
-    {
-        if (isset($source)) {
-            return $source;
-        } elseif (isset($this->source)) {
-            return $this->source;
-        }
-
-        return $_SERVER;
-    }
-
-    /**
      * Sets the source data used to lookup the addresses.
      *
      * @param $source The source array.
@@ -255,5 +219,41 @@ class Whip
             return true;
         }
         return $this->whitelist[$key]->isIpWhitelisted($ipAddress);
+    }
+
+    /**
+     * Get a source/request adapter for a given source of IP data.
+     *
+     * @param mixed $source A supported source of request data.
+     * @return RequestAdapter A RequestAdapter implementation for the given source.
+     */
+    private function getRequestAdapter($source)
+    {
+        if ($source instanceof RequestAdapter) {
+            return $source;
+        } elseif ($source instanceof ServerRequestInterface) {
+            return new Psr7RequestAdapter($source);
+        } elseif (is_array($source)) {
+            return new SuperglobalRequestAdapter($source);
+        }
+
+        throw new \InvalidArgumentException("Unknown IP source.");
+    }
+
+    /**
+     * Given available sources, get the first available source of IP data.
+     *
+     * @param mixed $source A source data argument, if available.
+     * @return mixed The best available source, after fallbacks.
+     */
+    private function coalesceSources($source = null)
+    {
+        if (isset($source)) {
+            return $source;
+        } elseif (isset($this->source)) {
+            return $this->source;
+        }
+
+        return $_SERVER;
     }
 }
