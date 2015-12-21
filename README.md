@@ -29,7 +29,7 @@ $ composer require vectorface/whip
 
 Add the required `use` statement to your class
 
-    use VectorFace\Whip\Whip;
+    use Vectorface\Whip\Whip;
 
 To fetch an IP address using every implemented method, you can simply do
 
@@ -168,13 +168,35 @@ Whip can also be used to provide simple IP range matching. For example,
 ```php
 <?php
 
-$range = new VectorFace\Whip\IpRange\Ipv4Range('10.0.*');
+$range = new Vectorface\Whip\IpRange\Ipv4Range('10.0.*');
 if ($range->containsIp($ipv4Address)) {
     // handle the IP address being within the range
 }
 
-$range = new VectorFace\Whip\IpRange\Ipv6Range('::1/32');
+$range = new Vectorface\Whip\IpRange\Ipv6Range('::1/32');
 if ($range->containsIp($ipv6Address)) {
     // handle the IP address being within the range
 }
 ```
+
+## PSR-7 Requests, and Others
+
+Whip supports using [PSR-7 (http-message)](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-7-http-message.md) request instances in place of the `$_SERVER` superglobal. For example,
+
+```php
+<?php
+
+// Get a Psr\Http\Message\ServerRequestInterface implementation from somewhere.
+$request = ServerRequestFactory::fromGlobals();
+
+// You can pass the request in the constructor.
+$whip = new Whip(Whip::REMOTE_ADDR, [], $request);
+
+// ... or set the request as the source of data.
+$whip->setSource($request);
+
+// ... or pass it to any function accepting a source argument.
+$ip = $whip->getValidIpAddress($request);
+```
+
+Other request formats can be supported via a RequestAdapter (src/Request/RequestAdapter) implementation.

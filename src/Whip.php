@@ -94,6 +94,7 @@ class Whip
      * Constructor for the class.
      * @param int $enabled The bitmask of enabled headers.
      * @param array $whitelists The array of IP ranges to be whitelisted.
+     * @param mixed $source A supported source of IP data.
      */
     public function __construct($enabled = self::ALL_METHODS, array $whitelists = array(), $source = null)
     {
@@ -122,10 +123,10 @@ class Whip
     }
 
     /**
-     * Get a source adapter for a given source of IP data.
+     * Get a source/request adapter for a given source of IP data.
      *
-     * @param mixed $source
-     * @return RequestAdapter
+     * @param mixed $source A supported source of request data.
+     * @return RequestAdapter A RequestAdapter implementation for the given source.
      */
     private function getRequestAdapter($source)
     {
@@ -141,9 +142,9 @@ class Whip
     }
 
     /**
-     * Given available sources, get the best source of IP data.
+     * Given available sources, get the first available source of IP data.
      *
-     * @param mixed $source A source data argument.
+     * @param mixed $source A source data argument, if available.
      * @return mixed The best available source, after fallbacks.
      */
     private function coalesceSources($source = null)
@@ -172,7 +173,7 @@ class Whip
 
     /**
      * Returns the IP address of the client using the given methods.
-     * @param array $source (optional) The source array. By default, the class
+     * @param mixed $source (optional) The source data. If omitted, the class
      *        will use the value passed to Whip::setSource or fallback to
      *        $_SERVER.
      * @return string Returns the IP address as a string or false if no
@@ -182,13 +183,13 @@ class Whip
     {
         $source = $this->getRequestAdapter($this->coalesceSources($source));
         $remoteAddr = $source->getRemoteAddr();
-        $clientHeaders = $source->getHeaders();
+        $requestHeaders = $source->getHeaders();
 
         foreach (self::$headers as $key => $headers) {
             if (!$this->isMethodUsable($key, $remoteAddr)) {
                 continue;
             }
-            return $this->extractAddressFromHeaders($clientHeaders, $headers);
+            return $this->extractAddressFromHeaders($requestHeaders, $headers);
         }
 
         return ($this->enabled & self::REMOTE_ADDR) ? $remoteAddr : false;
@@ -196,7 +197,7 @@ class Whip
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
-     * @param array $source (optional) The source array. By default, the class
+     * @param mixed $source (optional) The source data. If omitted, the class
      *        will use the value passed to Whip::setSource or fallback to
      *        $_SERVER.
      * @return string|false Returns the IP address (as a string) of the client or false
@@ -217,19 +218,18 @@ class Whip
      * If the IP address is a list of comma separated values, the last value
      * in the list will be returned.
      * If no IP address is found, we return false.
-     * @param array $source  The source array to pull the data from.
+     * @param array $requestHeaders The request headers to pull data from.
      * @param array $headers The list of headers to check.
      * @return string|false Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
-    private function extractAddressFromHeaders($source, $headers)
+    private function extractAddressFromHeaders($requestHeaders, $headers)
     {
         foreach ($headers as $header) {
-            if (empty($source[$header])) {
-                continue;
+            if (!empty($requestHeaders[$header])) {
+                $list = explode(',', $requestHeaders[$header]);
+                return trim(end($list));
             }
-            $list = explode(',', $source[$header]);
-            return trim(end($list));
         }
         return false;
     }
