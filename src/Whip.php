@@ -125,9 +125,9 @@ class Whip
      * Get a source adapter for a given source of IP data.
      *
      * @param mixed $source
-     * @param bool $fallback If true, fallback to $_SERVER if source is unusable.
+     * @return RequestAdapter
      */
-    public static function getSourceAdapter($source, $fallback = false)
+    private function getRequestAdapter($source)
     {
         if ($source instanceof RequestAdapter) {
             return $source;
@@ -135,11 +135,26 @@ class Whip
             return new Psr7RequestAdapter($source);
         } elseif (is_array($source)) {
             return new SuperglobalRequestAdapter($source);
-        } elseif ($fallback) {
-            return new SuperglobalRequestAdapter($_SERVER);
         }
 
         throw new \InvalidArgumentException("Unknown IP source.");
+    }
+
+    /**
+     * Given available sources, get the best source of IP data.
+     *
+     * @param mixed $source A source data argument.
+     * @return mixed The best available source, after fallbacks.
+     */
+    private function coalesceSources($source = null)
+    {
+        if (isset($source)) {
+            return $source;
+        } elseif (isset($this->source)) {
+            return $this->source;
+        }
+
+        return $_SERVER;
     }
 
     /**
@@ -150,7 +165,7 @@ class Whip
      */
     public function setSource($source)
     {
-        $this->source = static::getSourceAdapter($source);
+        $this->source = $this->getRequestAdapter($source);
 
         return $this;
     }
@@ -165,14 +180,12 @@ class Whip
      */
     public function getIpAddress($source = null)
     {
-        $source = $source ? static::getSourceAdapter($source) : static::getSourceAdapter($this->source, true);
+        $source = $this->getRequestAdapter($this->coalesceSources($source));
         $remoteAddr = $source->getRemoteAddr();
         $clientHeaders = $source->getHeaders();
 
         foreach (self::$headers as $key => $headers) {
-            if (!($key & $this->enabled) || !$this->isIpWhitelisted($key, $remoteAddr)) {
-                // skip this header if not enabled or if the local address
-                // is not whitelisted
+            if (!$this->isMethodUsable($key, $remoteAddr)) {
                 continue;
             }
             return $this->extractAddressFromHeaders($clientHeaders, $headers);
@@ -222,16 +235,22 @@ class Whip
     }
 
     /**
-     * Returns whether or not the given IP address is whitelisted for the given
-     * source key.
+     * Returns whether or not the given method is enabled and usable.
+     *
+     * This method checks if the method is enabled and whether the method's data
+     * is usable given it's IP whitelist.
+     *
      * @param string $key The source key.
      * @param string $ipAddress The IP address.
      * @return boolean Returns true if the IP address is whitelisted and false
      *         otherwise. Returns true if the source does not have a whitelist
      *         specified.
      */
-    private function isIpWhitelisted($key, $ipAddress)
+    private function isMethodUsable($key, $ipAddress)
     {
+        if (!($key & $this->enabled)) {
+            return false;
+        }
         if (!isset($this->whitelist[$key])) {
             return true;
         }

@@ -26,8 +26,6 @@ THE SOFTWARE.
 
 namespace Vectorface\Whip\Request;
 
-use Psr\Http\Message\ServerRequestInterface;
-
 /**
  * Provide IP address data from ta PSR-7 request.
  */
@@ -36,7 +34,7 @@ class Psr7RequestAdapter implements RequestAdapter
     /**
      * The PSR-7 request that serves as the source of data.
      *
-     * @var Psr\Http\Message\ServerRequestInterface
+     * @var \Psr\Http\Message\ServerRequestInterface
      */
     private $request;
 
@@ -50,9 +48,9 @@ class Psr7RequestAdapter implements RequestAdapter
     /**
      * Create a new adapter for a superglobal $_SERVER-style array.
      *
-     * @param ServerRequestInterface $request An array in a format like PHP's $_SERVER var.
+     * @param \Psr\Http\Message\ServerRequestInterface $request An array in a format like PHP's $_SERVER var.
      */
-    public function __construct(ServerRequestInterface $request)
+    public function __construct(\Psr\Http\Message\ServerRequestInterface $request)
     {
         $this->request = $request;
     }
@@ -66,7 +64,7 @@ class Psr7RequestAdapter implements RequestAdapter
     public function getHeaders()
     {
         if (!isset($this->headers)) {
-            $this->headers = [];
+            $this->headers = array();
             foreach ($this->request->getHeaders() as $header => $values) {
                 $this->headers[strtolower($header)] = end($values);
             }
