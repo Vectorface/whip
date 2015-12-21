@@ -76,7 +76,7 @@ class SuperglobalRequestAdapter implements RequestAdapter
      */
     private static function serverToHeaders(array $server)
     {
-        $headers = [];
+        $headers = array();
         foreach ($server as $key => $value) {
             if (strpos($key, 'HTTP_') === 0) {
                 $key = strtolower(str_replace("_", '-', substr($key, 5)));
