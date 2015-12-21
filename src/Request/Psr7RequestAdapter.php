@@ -50,7 +50,7 @@ class Psr7RequestAdapter implements RequestAdapter
     /**
      * Create a new adapter for a superglobal $_SERVER-style array.
      *
-     * @param string[] $server An array in a format like PHP's $_SERVER var.
+     * @param Psr\Http\Message\ServerRequestInterface $request An array in a format like PHP's $_SERVER var.
      */
     public function __construct(ServerRequestInterface $request)
     {
