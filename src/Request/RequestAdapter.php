@@ -3,7 +3,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 VectorFace, Inc.
+Copyright (c) 2015 Vectorface, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-namespace VectorFace\Whip\IpRange;
+namespace Vectorface\Whip\Request;
 
 /**
- * An interface for IP ranges.
- * @copyright VectorFace, Inc 2015
- * @author Daniel Bruce <dbruce1126@gmail.com>
+ * RequestAdapter: Interface for different request formats.
  */
-interface IpRange
+interface RequestAdapter
 {
     /**
-     * Returns whether or not a given IP address falls within this range.
-     * @param string $ipAddress The given IP address.
-     * @return boolean Returns true if the IP address falls within the range
-     *         and false otherwise.
+     * Get the remote address, as seen by this request format.
+     *
+     * @return string The remote address. IPv4 or IPv6, as applicable.
      */
-    public function containsIp($ipAddress);
+    public function getRemoteAddr();
+
+    /**
+     * Get a key/value mapping of request headers, keys in lowercase.
+     *
+     * @return string[] An associative array mapping headers to values.
+     */
+    public function getHeaders();
 }

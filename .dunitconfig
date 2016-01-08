@@ -4,6 +4,7 @@ images="
     vectorface/php5.4
     vectorface/php5.5
     vectorface/php5.6
+    vectorface/php7.0
     vectorface/hhvm";
 
 
