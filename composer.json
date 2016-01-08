@@ -21,6 +21,7 @@
     "autoload": {
         "psr-4": {
             "Vectorface\\Whip\\": "./src",
+            "VectorFace\\Whip\\": "./src",
             "Vectorface\\WhipTests\\": "./tests"
         }
     },
