@@ -19,9 +19,8 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "VectorFace\\Whip": "./src",
-            "VectorFace\\WhipTests": "./tests"
+        "psr-4": {
+            "VectorFace\\Whip\\": "./src/VectorFace/Whip/"
         }
     },
     "homepage": "https://github.com/Vectorface/whip",
