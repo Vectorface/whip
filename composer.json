@@ -20,7 +20,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "VectorFace\\Whip\\": "./src/VectorFace/Whip/"
+            "VectorFace\\Whip\\": "./src"
         }
     },
     "homepage": "https://github.com/Vectorface/whip",
