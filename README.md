@@ -30,14 +30,14 @@ $ composer require vectorface/whip
 Add the required `use` statement to your class
 
 ```php
-    use Vectorface\Whip\Whip;
+use Vectorface\Whip\Whip;
 ```
 
 To fetch an IP address using every implemented method, you can simply do
 
 ```php
-    $whip = new Whip();
-    $clientAddress = $whip->getValidIpAddress();
+$whip = new Whip();
+$clientAddress = $whip->getValidIpAddress();
 ```
 
 The class will attempt every method to retrieve the client's IP address
@@ -48,10 +48,10 @@ Note, that the method `Whip::getValidIpAddress` will return `false` if no
 valid IP address could be determined, so it is important to check for errors.
 
 ```php
-    $whip = new Whip();
-    if (false === ($clientAddress = $whip->getValidIpAddress())) {
-        // handle the error
-    }
+$whip = new Whip();
+if (false === ($clientAddress = $whip->getValidIpAddress())) {
+    // handle the error
+}
 ```
 
 To fetch an IP address using a specific method, you can pass a bitmask of
@@ -60,8 +60,8 @@ address using CloudFlare's custom HTTP header, and falling back to
 `$_SERVER['REMOTE_ADDR']` otherwise.
 
 ```php
-    $whip = new Whip(Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
-    $clientAddress = $whip->getValidIpAddress();
+$whip = new Whip(Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
+$clientAddress = $whip->getValidIpAddress();
 ```
 
 This method works, but there is the problem that the custom HTTP header can
@@ -96,36 +96,36 @@ custom header was not found or if the source IP address does match any in the
 whitelist.
 
 ```php
-    $whip = new Whip(
-        Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR,
-        [
-            Whip::CLOUDFLARE_HEADERS => [
-                Whip::IPV4 => [
-                    '199.27.128.0/21',
-                    '173.245.48.0/20',
-                    '103.21.244.0/22',
-                    '103.22.200.0/22',
-                    '103.31.4.0/22',
-                    '141.101.64.0/18',
-                    '108.162.192.0/18',
-                    '190.93.240.0/20',
-                    '188.114.96.0/20',
-                    '197.234.240.0/22',
-                    '198.41.128.0/17',
-                    '162.158.0.0/15',
-                    '104.16.0.0/12'
-                ],
-                Whip::IPV6 => [
-                    '2400:cb00::/32',
-                    '2606:4700::/32',
-                    '2803:f800::/32',
-                    '2405:b500::/32',
-                    '2405:8100::/32'
-                ]
+$whip = new Whip(
+    Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR,
+    [
+        Whip::CLOUDFLARE_HEADERS => [
+            Whip::IPV4 => [
+                '199.27.128.0/21',
+                '173.245.48.0/20',
+                '103.21.244.0/22',
+                '103.22.200.0/22',
+                '103.31.4.0/22',
+                '141.101.64.0/18',
+                '108.162.192.0/18',
+                '190.93.240.0/20',
+                '188.114.96.0/20',
+                '197.234.240.0/22',
+                '198.41.128.0/17',
+                '162.158.0.0/15',
+                '104.16.0.0/12'
+            ],
+            Whip::IPV6 => [
+                '2400:cb00::/32',
+                '2606:4700::/32',
+                '2803:f800::/32',
+                '2405:b500::/32',
+                '2405:8100::/32'
             ]
         ]
-    );
-    $clientAddress = $whip->getValidIpAddress();
+    ]
+);
+$clientAddress = $whip->getValidIpAddress();
 ```
 
 Please be sure to use the actual list of IP ranges from CloudFlare for
@@ -167,21 +167,21 @@ we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
 `$_SERVER['REMOTE_ADDR']` if the custom header doesn't work).
 
 ```php
-    $whip = new Whip(
-        Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
-        [
-            Whip::CUSTOM_HEADERS => [
-                Whip::IPV4 => [
-                    '127.0.0.1'
-                ],
-                Whip::IPV6 => [
-                    '::1'
-                ]
+$whip = new Whip(
+    Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
+    [
+        Whip::CUSTOM_HEADERS => [
+            Whip::IPV4 => [
+                '127.0.0.1'
+            ],
+            Whip::IPV6 => [
+                '::1'
             ]
         ]
-    );
-    $whip->addCustomHeader('X-SECRET-REAL-IP');
-    $clientAddress = $whip->getValidIpAddress();
+    ]
+);
+$whip->addCustomHeader('X-SECRET-REAL-IP');
+$clientAddress = $whip->getValidIpAddress();
 ```
 
 ## Valid IP Ranges
@@ -202,8 +202,6 @@ ranges.
 Whip can also be used to provide simple IP range matching. For example,
 
 ```php
-<?php
-
 $range = new Vectorface\Whip\IpRange\Ipv4Range('10.0.*');
 if ($range->containsIp($ipv4Address)) {
     // handle the IP address being within the range
@@ -220,8 +218,6 @@ if ($range->containsIp($ipv6Address)) {
 Whip supports using [PSR-7 (http-message)](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-7-http-message.md) request instances in place of the `$_SERVER` superglobal. For example,
 
 ```php
-<?php
-
 // Get a Psr\Http\Message\ServerRequestInterface implementation from somewhere.
 $request = ServerRequestFactory::fromGlobals();
 
