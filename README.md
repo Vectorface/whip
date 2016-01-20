@@ -61,6 +61,25 @@ easily be spoofed if your sites accept traffic not from CloudFlare. To prevent
 this, Whip allows you to specify a whitelist of IP addresses (or address ranges)
 that you accept per method.
 
+## Using Whip Behind a Trusted Proxy
+
+A common use case is to deploy a trusted proxy (nginx, varnish, and many others)
+in front of an application server. To forward the correct client IP, the trusted
+proxy should be configured to inject a header for Whip to read with the custom
+headers method.
+
+If the trusted proxy is configured to send a X-My-Client-IP header, Whip
+could be used as follows:
+
+```php
+$whip = new Whip(
+    Whip::CUSTOM_HEADERS,
+    ['HTTP_X_MY_CLIENT_IP' => ['10.0.0.2', '10.0.0.3']] // Whitelist your proxies.
+);
+$whip->addCustomHeader('HTTP_X_MY_CLIENT_IP');
+$ip = $whip->getValidIpAddress();
+```
+
 ## Using the CloudFlare IP Range Whitelist
 
 As a common example, Whip can accept a whitelist of IP ranges for CloudFlare
@@ -123,6 +142,11 @@ To combine methods, use the bitwise OR operator `|`. The current methods are:
   "Incap-Client-IP".
 - `Whip::CUSTOM_HEADERS` - Uses a custom list of HTTP headers passed into
   `Whip::addCustomHeader`.
+
+Please note that the proxy headers method can be susceptible to client spoofing
+because it extracts addresses from several possible HTTP headers. This means
+that using the proxy headers method is not appropriate where trust is required,
+like in the context of authentication.
 
 ## Using a Custom Header
 
