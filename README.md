@@ -29,12 +29,16 @@ $ composer require vectorface/whip
 
 Add the required `use` statement to your class
 
+```php
     use Vectorface\Whip\Whip;
+```
 
 To fetch an IP address using every implemented method, you can simply do
 
+```php
     $whip = new Whip();
     $clientAddress = $whip->getValidIpAddress();
+```
 
 The class will attempt every method to retrieve the client's IP address
 starting with very specific use cases and falling back to more general use
@@ -43,18 +47,22 @@ cases.
 Note, that the method `Whip::getValidIpAddress` will return `false` if no
 valid IP address could be determined, so it is important to check for errors.
 
+```php
     $whip = new Whip();
     if (false === ($clientAddress = $whip->getValidIpAddress())) {
         // handle the error
     }
+```
 
 To fetch an IP address using a specific method, you can pass a bitmask of
 enabled methods to the constructor. Here is an example of looking up the IP
 address using CloudFlare's custom HTTP header, and falling back to
 `$_SERVER['REMOTE_ADDR']` otherwise.
 
+```php
     $whip = new Whip(Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR);
     $clientAddress = $whip->getValidIpAddress();
+```
 
 This method works, but there is the problem that the custom HTTP header can
 easily be spoofed if your sites accept traffic not from CloudFlare. To prevent
@@ -87,6 +95,7 @@ when using their custom header and fall back to `$_SERVER['REMOTE_ADDR']` if the
 custom header was not found or if the source IP address does match any in the
 whitelist.
 
+```php
     $whip = new Whip(
         Whip::CLOUDFLARE_HEADERS | Whip::REMOTE_ADDR,
         [
@@ -117,6 +126,7 @@ whitelist.
         ]
     );
     $clientAddress = $whip->getValidIpAddress();
+```
 
 Please be sure to use the actual list of IP ranges from CloudFlare for
 [IPv4](https://www.cloudflare.com/ips-v4) and
@@ -156,6 +166,7 @@ would be hard to spoof. In this example, we assume Varnish is run locally and
 we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
 `$_SERVER['REMOTE_ADDR']` if the custom header doesn't work).
 
+```php
     $whip = new Whip(
         Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
         [
@@ -171,6 +182,7 @@ we use a custom HTTP header "X-SECRET-REAL-IP" (and fall back to
     );
     $whip->addCustomHeader('X-SECRET-REAL-IP');
     $clientAddress = $whip->getValidIpAddress();
+```
 
 ## Valid IP Ranges
 
