@@ -104,6 +104,7 @@ class Whip
         }
         $this->whitelist = array();
         foreach ($whitelists as $header => $ipRanges) {
+            $header = $this->normalizeHeaderName($header);
             $this->whitelist[$header] = new IpWhitelist($ipRanges);
         }
     }
@@ -115,10 +116,7 @@ class Whip
      */
     public function addCustomHeader($header)
     {
-        if (strpos($header, 'HTTP_') === 0) {
-            $header = str_replace('_', '-', substr($header, 5));
-        }
-        self::$headers[self::CUSTOM_HEADERS][] = strtolower($header);
+        self::$headers[self::CUSTOM_HEADERS][] = $this->normalizeHeaderName($header);
         return $this;
     }
 
@@ -174,6 +172,22 @@ class Whip
             return false;
         }
         return $ipAddress;
+    }
+
+    /**
+     * Normalizes HTTP header name representations.
+     *
+     * HTTP_MY_HEADER and My-Header would be transformed to my-header.
+     *
+     * @param string $header The original header name.
+     * @return string The normalized header name.
+     */
+    private function normalizeHeaderName($header)
+    {
+        if (strpos($header, 'HTTP_') === 0) {
+            $header = str_replace('_', '-', substr($header, 5));
+        }
+        return strtolower($header);
     }
 
     /**
