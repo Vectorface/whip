@@ -82,7 +82,9 @@ could be used as follows:
 ```php
 $whip = new Whip(
     Whip::CUSTOM_HEADERS,
-    ['HTTP_X_MY_CLIENT_IP' => ['10.0.0.2', '10.0.0.3']] // Whitelist your proxies.
+    [Whip::CUSTOM_HEADERS => [ // Whitelist your proxies.
+        Whip::IPV4 => ['10.0.0.2', '10.0.0.3']
+    ]]
 );
 $whip->addCustomHeader('HTTP_X_MY_CLIENT_IP');
 $ip = $whip->getValidIpAddress();

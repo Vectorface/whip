@@ -26,7 +26,6 @@ namespace Vectorface\WhipTests;
 
 use PHPUnit_Framework_TestCase;
 use Vectorface\Whip\Whip;
-use Vectorface\Whip\IpRange\IpWhitelist;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -93,7 +92,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.1'
                     )
                 )
@@ -156,8 +155,8 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array('127.0.0.1'),
-                    IpWhitelist::IPV6 => array('::1')
+                    Whip::IPV4 => array('127.0.0.1'),
+                    Whip::IPV6 => array('::1')
                 )
             ),
             array(
@@ -189,10 +188,10 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.0-127.0.255.255',
                     ),
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1'
                     )
                 )
@@ -215,10 +214,10 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.*'
                     ),
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1'
                     )
                 )
@@ -241,10 +240,10 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.0/24'
                     ),
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1'
                     )
                 )
@@ -267,10 +266,10 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.1/24'
                     ),
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1'
                     )
                 )
@@ -293,7 +292,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '2400:cb00::/32'
                     )
                 )
@@ -316,7 +315,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1/32'
                     )
                 )
@@ -339,7 +338,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV6 => array(
+                    Whip::IPV6 => array(
                         '::1/32'
                     )
                 )
@@ -362,7 +361,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::PROXY_HEADERS,
             array(
                 Whip::PROXY_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.0/24'
                     )
                 )
@@ -384,7 +383,7 @@ class WhipTest extends PHPUnit_Framework_TestCase
             Whip::CUSTOM_HEADERS | Whip::REMOTE_ADDR,
             array(
                 Whip::CUSTOM_HEADERS => array(
-                    IpWhitelist::IPV4 => array(
+                    Whip::IPV4 => array(
                         '127.0.0.1',
                         '::1'
                     )

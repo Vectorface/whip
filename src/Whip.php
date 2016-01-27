@@ -43,6 +43,11 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class Whip
 {
+    /** The whitelist key for IPv4 addresses */
+    const IPV4 = IpWhitelist::IPV4;
+
+    /** The whitelist key for IPv6 addresses */
+    const IPV6 = IpWhitelist::IPV6;
 
     /** Indicates all header methods will be used. */
     const ALL_METHODS        = 255;
