@@ -151,21 +151,22 @@ class Whip
         $source = $this->getRequestAdapter($this->coalesceSources($source));
         $remoteAddr = $source->getRemoteAddr();
         $requestHeaders = $source->getHeaders();
-        $ipAddress = false;
 
         foreach (self::$headers as $key => $headers) {
             if (!$this->isMethodUsable($key, $remoteAddr)) {
                 continue;
             }
 
-            $ipAddress = $this->extractAddressFromHeaders($requestHeaders, $headers);
+            if ($ipAddress = $this->extractAddressFromHeaders($requestHeaders, $headers)) {
+                return $ipAddress;
+            }
         }
 
-        if (!$ipAddress && $remoteAddr && ($this->enabled & self::REMOTE_ADDR)) {
-            $ipAddress = $remoteAddr;
+        if ($remoteAddr && ($this->enabled & self::REMOTE_ADDR)) {
+            return $remoteAddr;
         }
 
-        return $ipAddress;
+        return false;
     }
 
     /**
