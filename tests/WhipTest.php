@@ -444,4 +444,16 @@ class WhipTest extends PHPUnit_Framework_TestCase
         $lookup->setSource($source);
         $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
     }
+
+    /**
+     * Tests that we fallback to REMOTE_ADDR if the custom header was not found
+     */
+    public function testFallbackToRemoteAddr()
+    {
+        $source = array(
+            'REMOTE_ADDR' => '24.24.24.24'
+        );
+        $lookup = new Whip(Whip::PROXY_HEADERS | Whip::REMOTE_ADDR, array(), $source);
+        $this->assertEquals($source['REMOTE_ADDR'], $lookup->getIpAddress());
+    }
 }

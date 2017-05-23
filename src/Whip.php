@@ -156,10 +156,17 @@ class Whip
             if (!$this->isMethodUsable($key, $remoteAddr)) {
                 continue;
             }
-            return $this->extractAddressFromHeaders($requestHeaders, $headers);
+
+            if ($ipAddress = $this->extractAddressFromHeaders($requestHeaders, $headers)) {
+                return $ipAddress;
+            }
         }
 
-        return ($this->enabled & self::REMOTE_ADDR) ? $remoteAddr : false;
+        if ($remoteAddr && ($this->enabled & self::REMOTE_ADDR)) {
+            return $remoteAddr;
+        }
+
+        return false;
     }
 
     /**
