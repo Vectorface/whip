@@ -1,4 +1,5 @@
-#Whip
+# Whip
+
 [![Build Status](https://travis-ci.org/Vectorface/whip.svg?branch=master)](https://travis-ci.org/Vectorface/whip)
 [![Code Coverage](https://scrutinizer-ci.com/g/Vectorface/whip/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Vectorface/whip/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Vectorface/whip/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Vectorface/whip/?branch=master)
