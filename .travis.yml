@@ -29,4 +29,4 @@ script:
 after_script:
  - sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm-3.30" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi;'
  - sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm-3.30" ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi'
- - sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm-3.30" ]; then vendor/bin/test-reporter --coverage-report=coverage.clover; fi'
+ - sh -c 'if [ -n "$CODECLIMATE_REPO_TOKEN" -a "$TRAVIS_PHP_VERSION" != "hhvm-3.30" ]; then vendor/bin/test-reporter --coverage-report=coverage.clover; fi'
