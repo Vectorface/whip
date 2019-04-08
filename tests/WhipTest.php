@@ -24,9 +24,8 @@ THE SOFTWARE.
 */
 namespace Vectorface\WhipTests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Vectorface\Whip\Whip;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Test class for testing Whip.
@@ -34,7 +33,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @copyright Vectorface, Inc 2015
  * @author Daniel Bruce <dbruce@vectorface.com>
  */
-class WhipTest extends PHPUnit_Framework_TestCase
+class WhipTest extends TestCase
 {
     /**
      * Tests that an invalid source format is rejected.
