@@ -96,7 +96,7 @@ class WhipTest extends TestCase
                     )
                 )
             ),
-            $this->getHttpMessageMock("127.0.0.1", array('X-Forwarded-For' => array('192.168.1.1,32.32.32.32')))
+            $this->getHttpMessageMock("127.0.0.1", array('X-Forwarded-For' => array('32.32.32.32,192.168.1.1')))
         );
 
         $this->assertEquals('32.32.32.32', $lookup->getIpAddress());
@@ -160,7 +160,7 @@ class WhipTest extends TestCase
             ),
             array(
                 'REMOTE_ADDR' => $remoteAddr,
-                'HTTP_X_FORWARDED_FOR' => '192.168.1.1,32.32.32.32'
+                'HTTP_X_FORWARDED_FOR' => '32.32.32.32,192.168.1.1'
             )
         );
         $this->assertEquals('32.32.32.32', $lookup->getIpAddress());
