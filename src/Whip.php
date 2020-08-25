@@ -205,8 +205,8 @@ class Whip
     /**
      * Finds the first element in $headers that is present in $_SERVER and
      * returns the IP address mapped to that value.
-     * If the IP address is a list of comma separated values, the last value
-     * in the list will be returned.
+     * If the IP address is a list of comma separated values, the first value
+     * in the list will be returned. According as directive: clientIp, proxy1, proxy2, ...
      * If no IP address is found, we return false.
      * @param array $requestHeaders The request headers to pull data from.
      * @param array $headers The list of headers to check.
@@ -218,7 +218,7 @@ class Whip
         foreach ($headers as $header) {
             if (!empty($requestHeaders[$header])) {
                 $list = explode(',', $requestHeaders[$header]);
-                return trim(end($list));
+                return trim($list[0]);
             }
         }
         return false;
