@@ -26,12 +26,12 @@ THE SOFTWARE.
 
 namespace Vectorface\Whip;
 
-use \Exception;
-use Vectorface\Whip\IpRange\IpWhitelist;
-use Vectorface\Whip\Request\RequestAdapter;
-use Vectorface\Whip\Request\Psr7RequestAdapter;
-use Vectorface\Whip\Request\SuperglobalRequestAdapter;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
+use Vectorface\Whip\IpRange\IpWhitelist;
+use Vectorface\Whip\Request\Psr7RequestAdapter;
+use Vectorface\Whip\Request\RequestAdapter;
+use Vectorface\Whip\Request\SuperglobalRequestAdapter;
 
 /**
  * A class for accurately looking up a client's IP address.
@@ -63,15 +63,15 @@ class Whip
     const CUSTOM_HEADERS     = 128;
 
     /** The array of mapped header strings. */
-    private static $headers = array(
-        self::CUSTOM_HEADERS     => array(),
-        self::INCAPSULA_HEADERS  => array(
+    private static array $headers = [
+        self::CUSTOM_HEADERS => [],
+        self::INCAPSULA_HEADERS => [
             'incap-client-ip'
-        ),
-        self::CLOUDFLARE_HEADERS => array(
+        ],
+        self::CLOUDFLARE_HEADERS => [
             'cf-connecting-ip'
-        ),
-        self::PROXY_HEADERS      => array(
+        ],
+        self::PROXY_HEADERS => [
             'client-ip',
             'x-forwarded-for',
             'x-forwarded',
@@ -79,35 +79,36 @@ class Whip
             'forwarded-for',
             'forwarded',
             'x-real-ip',
-        ),
-    );
+        ],
+    ];
 
     /** the bitmask of enabled methods */
-    private $enabled;
+    private int $enabled;
 
     /** the array of IP whitelist ranges to check against */
-    private $whitelist;
+    private array $whitelist;
 
     /**
      * An object holding the source of addresses we will check
      *
      * @var RequestAdapter
      */
-    private $source;
+    private RequestAdapter $source;
 
     /**
      * Constructor for the class.
+     *
      * @param int $enabled The bitmask of enabled headers.
      * @param array $whitelists The array of IP ranges to be whitelisted.
-     * @param mixed $source A supported source of IP data.
+     * @param mixed|null $source A supported source of IP data.
      */
-    public function __construct($enabled = self::ALL_METHODS, array $whitelists = array(), $source = null)
+    public function __construct(int $enabled = self::ALL_METHODS, array $whitelists = [], mixed $source = null)
     {
-        $this->enabled   = (int) $enabled;
+        $this->enabled = $enabled;
         if (isset($source)) {
             $this->setSource($source);
         }
-        $this->whitelist = array();
+        $this->whitelist = [];
         foreach ($whitelists as $header => $ipRanges) {
             $header = $this->normalizeHeaderName($header);
             $this->whitelist[$header] = new IpWhitelist($ipRanges);
@@ -116,37 +117,38 @@ class Whip
 
     /**
      * Adds a custom header to the list.
+     *
      * @param string $header The custom header to add.
-     * @return Whip Returns $this.
+     * @return static
      */
-    public function addCustomHeader($header)
+    public function addCustomHeader(string $header) : static
     {
         self::$headers[self::CUSTOM_HEADERS][] = $this->normalizeHeaderName($header);
         return $this;
     }
 
     /**
-     * Sets the source data used to lookup the addresses.
+     * Sets the source data used to look up the addresses.
      *
-     * @param $source The source array.
-     * @return Whip Returns $this.
+     * @param mixed $source The source array.
+     * @return static
      */
-    public function setSource($source)
+    public function setSource(mixed $source) : static
     {
         $this->source = $this->getRequestAdapter($source);
-
         return $this;
     }
 
     /**
      * Returns the IP address of the client using the given methods.
-     * @param mixed $source (optional) The source data. If omitted, the class
+     *
+     * @param mixed|null $source (optional) The source data. If omitted, the class
      *        will use the value passed to Whip::setSource or fallback to
      *        $_SERVER.
-     * @return string Returns the IP address as a string or false if no
+     * @return string|false Returns the IP address as a string or false if no
      *         IP address could be found.
      */
-    public function getIpAddress($source = null)
+    public function getIpAddress(mixed $source = null) : string|false
     {
         $source = $this->getRequestAdapter($this->coalesceSources($source));
         $remoteAddr = $source->getRemoteAddr();
@@ -171,13 +173,14 @@ class Whip
 
     /**
      * Returns the valid IP address or false if no valid IP address was found.
-     * @param mixed $source (optional) The source data. If omitted, the class
+     *
+     * @param mixed|null $source (optional) The source data. If omitted, the class
      *        will use the value passed to Whip::setSource or fallback to
      *        $_SERVER.
      * @return string|false Returns the IP address (as a string) of the client or false
      *         if no valid IP address was found.
      */
-    public function getValidIpAddress($source = null)
+    public function getValidIpAddress(mixed $source = null) : string|false
     {
         $ipAddress = $this->getIpAddress($source);
         if (false === $ipAddress || false === @inet_pton($ipAddress)) {
@@ -194,9 +197,9 @@ class Whip
      * @param string $header The original header name.
      * @return string The normalized header name.
      */
-    private function normalizeHeaderName($header)
+    private function normalizeHeaderName(string $header) : string
     {
-        if (strpos($header, 'HTTP_') === 0) {
+        if (str_starts_with($header, 'HTTP_')) {
             $header = str_replace('_', '-', substr($header, 5));
         }
         return strtolower($header);
@@ -208,12 +211,13 @@ class Whip
      * If the IP address is a list of comma separated values, the first value
      * in the list will be returned. According as directive: clientIp, proxy1, proxy2, ...
      * If no IP address is found, we return false.
+     *
      * @param array $requestHeaders The request headers to pull data from.
      * @param array $headers The list of headers to check.
      * @return string|false Returns the IP address as a string or false if no IP
      *         IP address was found.
      */
-    private function extractAddressFromHeaders($requestHeaders, $headers)
+    private function extractAddressFromHeaders(array $requestHeaders, array $headers) : string|false
     {
         foreach ($headers as $header) {
             if (!empty($requestHeaders[$header])) {
@@ -225,18 +229,18 @@ class Whip
     }
 
     /**
-     * Returns whether or not the given method is enabled and usable.
+     * Returns whether the given method is enabled and usable.
      *
      * This method checks if the method is enabled and whether the method's data
-     * is usable given it's IP whitelist.
+     * is usable given its IP whitelist.
      *
      * @param string $key The source key.
-     * @param string $ipAddress The IP address.
-     * @return boolean Returns true if the IP address is whitelisted and false
+     * @param string|null $ipAddress The IP address.
+     * @return bool Returns true if the IP address is whitelisted and false
      *         otherwise. Returns true if the source does not have a whitelist
      *         specified.
      */
-    private function isMethodUsable($key, $ipAddress)
+    private function isMethodUsable(string $key, ?string $ipAddress) : bool
     {
         if (!($key & $this->enabled)) {
             return false;
@@ -253,7 +257,7 @@ class Whip
      * @param mixed $source A supported source of request data.
      * @return RequestAdapter A RequestAdapter implementation for the given source.
      */
-    private function getRequestAdapter($source)
+    private function getRequestAdapter(mixed $source): RequestAdapter
     {
         if ($source instanceof RequestAdapter) {
             return $source;
@@ -263,20 +267,22 @@ class Whip
             return new SuperglobalRequestAdapter($source);
         }
 
-        throw new \InvalidArgumentException("Unknown IP source.");
+        throw new InvalidArgumentException("Unknown IP source.");
     }
 
     /**
      * Given available sources, get the first available source of IP data.
      *
-     * @param mixed $source A source data argument, if available.
+     * @param mixed|null $source A source data argument, if available.
      * @return mixed The best available source, after fallbacks.
      */
-    private function coalesceSources($source = null)
+    private function coalesceSources(mixed $source = null) : mixed
     {
         if (isset($source)) {
             return $source;
-        } elseif (isset($this->source)) {
+        }
+
+        if (isset($this->source)) {
             return $this->source;
         }
 

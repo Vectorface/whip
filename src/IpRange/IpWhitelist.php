@@ -40,10 +40,10 @@ class IpWhitelist
     const IPV6 = 'ipv6';
 
     /** an array of Ipv4Range items */
-    private $ipv4Whitelist;
+    private array $ipv4Whitelist;
 
     /** an array of Ipv6Range items */
-    private $ipv6Whitelist;
+    private array $ipv6Whitelist;
 
     /**
      * Constructor for the class.
@@ -55,22 +55,23 @@ class IpWhitelist
         $this->ipv4Whitelist = $this->constructWhiteListForKey(
             $whitelists,
             self::IPV4,
-            'Vectorface\\Whip\\IpRange\\Ipv4Range'
+            Ipv4Range::class
         );
         $this->ipv6Whitelist = $this->constructWhiteListForKey(
             $whitelists,
             self::IPV6,
-            'Vectorface\\Whip\\IpRange\\Ipv6Range'
+            Ipv6Range::class
         );
     }
 
     /**
-     * Returns whether or not the given IP address is within the whitelist.
+     * Returns whether the given IP address is within the whitelist.
+     *
      * @param string $ipAddress A valid IPv4 or IPv6 address.
-     * @return boolean Returns true if the IP address matches one of the
+     * @return bool Returns true if the IP address matches one of the
      *         whitelisted IP ranges and false otherwise.
      */
-    public function isIpWhitelisted($ipAddress)
+    public function isIpWhitelisted(string $ipAddress) : bool
     {
         // determine whether this IP is IPv4 or IPv6
         $isIpv4Address = filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
@@ -84,6 +85,7 @@ class IpWhitelist
      * Constructs the whitelist for the given key. Each element in the
      * whitelist gets mapped from a string to an instance of an Ipv4Range or
      * Ipv6Range.
+     *
      * @param array $whitelist The input whitelist of ranges.
      * @param string $key The key to use from the input whitelist ('ipv4' or
      *        'ipv6').
@@ -91,25 +93,25 @@ class IpWhitelist
      *        specified $class.
      * @return array Returns an array of Ipv4Range or Ipv6Range elements.
      */
-    private function constructWhiteListForKey(array $whitelist, $key, $class)
+    private function constructWhiteListForKey(array $whitelist, string $key, string $class) : array
     {
-        if (isset($whitelist[$key]) && is_array($whitelist[$key])) {
-            return array_map(function ($range) use ($class) {
-                return new $class($range);
-            }, array_values($whitelist[$key]));
-        } else {
-            return array();
+        if (!isset($whitelist[$key]) || !is_array($whitelist[$key])) {
+            return [];
         }
+        return array_map(function ($range) use ($class) {
+            return new $class($range);
+        }, array_values($whitelist[$key]));
     }
 
     /**
-     * Returns whether or not the given IP address is in the given whitelist.
+     * Returns whether the given IP address is in the given whitelist.
+     *
      * @param array $whitelist The given whitelist.
      * @param string $ipAddress The given IP address.
-     * @return boolean Returns true if the IP address is in the whitelist and
+     * @return bool Returns true if the IP address is in the whitelist and
      *         false otherwise.
      */
-    private function isIpInWhitelist(array $whitelist, $ipAddress)
+    private function isIpInWhitelist(array $whitelist, string $ipAddress) : bool
     {
         foreach ($whitelist as $ipRange) {
             if ($ipRange->containsIp($ipAddress)) {

@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 namespace Vectorface\Whip\Request;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Provide IP address data from ta PSR-7 request.
  */
@@ -33,38 +35,36 @@ class Psr7RequestAdapter implements RequestAdapter
 {
     /**
      * The PSR-7 request that serves as the source of data.
-     *
-     * @var \Psr\Http\Message\ServerRequestInterface
      */
-    private $request;
+    private ServerRequestInterface $request;
 
     /**
      * A formatted version of the HTTP headers: ["header" => "value", ...]
      *
      * @var string[]
      */
-    private $headers;
+    private array $headers;
 
     /**
      * Create a new adapter for a superglobal $_SERVER-style array.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request An array in a format like PHP's $_SERVER var.
+     * @param ServerRequestInterface $request An array in a format like PHP's $_SERVER var.
      */
-    public function __construct(\Psr\Http\Message\ServerRequestInterface $request)
+    public function __construct(ServerRequestInterface $request)
     {
         $this->request = $request;
     }
 
-    public function getRemoteAddr()
+    public function getRemoteAddr() : ?string
     {
         $server = $this->request->getServerParams();
-        return isset($server['REMOTE_ADDR']) ? $server['REMOTE_ADDR'] : null;
+        return $server['REMOTE_ADDR'] ?? null;
     }
 
-    public function getHeaders()
+    public function getHeaders() : array
     {
         if (!isset($this->headers)) {
-            $this->headers = array();
+            $this->headers = [];
             foreach ($this->request->getHeaders() as $header => $values) {
                 $this->headers[strtolower($header)] = end($values);
             }

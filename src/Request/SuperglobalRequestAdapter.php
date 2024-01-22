@@ -36,14 +36,14 @@ class SuperglobalRequestAdapter implements RequestAdapter
      *
      * @var string[]
      */
-    private $server;
+    private array $server;
 
     /**
      * A formatted version of the HTTP headers: ["header" => "value", ...]
      *
      * @var string[]
      */
-    private $headers;
+    private array $headers;
 
     /**
      * Create a new adapter for a superglobal $_SERVER-style array.
@@ -55,17 +55,14 @@ class SuperglobalRequestAdapter implements RequestAdapter
         $this->server = $server;
     }
 
-    public function getRemoteAddr()
+    public function getRemoteAddr() : ?string
     {
-        return isset($this->server['REMOTE_ADDR']) ? $this->server['REMOTE_ADDR'] : null;
+        return $this->server['REMOTE_ADDR'] ?? null;
     }
 
-    public function getHeaders()
+    public function getHeaders() : array
     {
-        if (!isset($this->headers)) {
-            $this->headers = $this->serverToHeaders($this->server);
-        }
-        return $this->headers;
+        return $this->headers ??= $this->serverToHeaders($this->server);
     }
 
     /**
@@ -74,11 +71,11 @@ class SuperglobalRequestAdapter implements RequestAdapter
      * @param string[] $server The $_SERVER-style array.
      * @return string[] Array of headers with lowercased keys.
      */
-    private static function serverToHeaders(array $server)
+    private static function serverToHeaders(array $server) : array
     {
-        $headers = array();
+        $headers = [];
         foreach ($server as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
+            if (str_starts_with($key, 'HTTP_')) {
                 $key = strtolower(str_replace("_", '-', substr($key, 5)));
                 $headers[$key] = $value;
             }
