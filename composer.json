@@ -39,12 +39,11 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
-        "squizlabs/php_codesniffer": "~2.0",
-        "vectorface/dunit": "~2.0"
+        "squizlabs/php_codesniffer": "~2.0"
     },
     "scripts": {
         "test": [
-          "@test-unit"
+            "@test-unit"
         ],
         "test-unit": "phpunit --color=always"
     }
