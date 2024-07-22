@@ -28,6 +28,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use stdClass;
+use Symfony\Component\HttpFoundation\Request;
 use Vectorface\Whip\Whip;
 
 /**
@@ -101,6 +102,41 @@ class WhipTest extends TestCase
                 ]
             ],
             $this->getHttpMessageMock("127.0.0.1", ['X-Forwarded-For' => ['32.32.32.32,192.168.1.1']])
+        );
+
+        $this->assertEquals('32.32.32.32', $lookup->getIpAddress());
+    }
+
+    /**
+     * Helper to get a Symfony request instance.
+     *
+     * @param string $remoteAddr The remote address to mock.
+     * @param string[][] $headers The headers, in the format expected by Psr-7.
+     */
+    private function getSymfonyRequest(string $remoteAddr, array $headers = []): Request
+    {
+        $serverVariables = [
+            'REMOTE_ADDR' => $remoteAddr,
+        ];
+        foreach($headers as $key => $value) {
+            $serverVariables['HTTP_' . strtoupper($key)] = implode(',', $value);
+        }
+        return new Request(
+            server: $serverVariables,
+        );
+    }
+    public function testSymfonyRequest()
+    {
+        $lookup = new Whip(
+            Whip::PROXY_HEADERS,
+            [
+                Whip::PROXY_HEADERS => [
+                    Whip::IPV4 => [
+                        '127.0.0.1'
+                    ]
+                ]
+            ],
+            $this->getSymfonyRequest("127.0.0.1", ['X-Forwarded-For' => ['32.32.32.32,192.168.1.1']])
         );
 
         $this->assertEquals('32.32.32.32', $lookup->getIpAddress());

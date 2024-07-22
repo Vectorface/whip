@@ -28,10 +28,12 @@ namespace Vectorface\Whip;
 
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Vectorface\Whip\IpRange\IpWhitelist;
 use Vectorface\Whip\Request\Psr7RequestAdapter;
 use Vectorface\Whip\Request\RequestAdapter;
 use Vectorface\Whip\Request\SuperglobalRequestAdapter;
+use Vectorface\Whip\Request\SymfonyRequestAdapter;
 
 /**
  * A class for accurately looking up a client's IP address.
@@ -263,6 +265,8 @@ class Whip
             return $source;
         } elseif ($source instanceof ServerRequestInterface) {
             return new Psr7RequestAdapter($source);
+        } elseif ($source instanceof Request) {
+            return new SymfonyRequestAdapter($source);
         } elseif (is_array($source)) {
             return new SuperglobalRequestAdapter($source);
         }
